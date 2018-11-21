@@ -70,8 +70,8 @@ bool cSoundMgr::initMixer()
 		cout << "SDL_Init_AUDIO Failed: " << SDL_GetError() << endl;
 		return false;
 	}
-	//Initialise SDL_mixer 
-	if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 4096) != 0)
+	//Initialise SDL_mixer		MIX_DEFAULT_FREQUENCY -> 44100 due to crackling noise
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) != 0)
 	{
 		cout << "Mix_OpenAudio Failed: " << SDL_GetError() << endl;
 		return false;

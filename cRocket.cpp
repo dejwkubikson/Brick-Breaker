@@ -33,13 +33,13 @@ void cRocket::update(double deltaTime)
 
 	const Uint8* keystate = SDL_GetKeyboardState(NULL);
 
-	if (keystate[SDL_SCANCODE_LEFT])
+	if (keystate[SDL_SCANCODE_LEFT] || keystate[SDL_SCANCODE_A])
 	{
 		move = -1;
 		stopRocket = false;
 	}
 	else
-		if (keystate[SDL_SCANCODE_RIGHT])
+		if (keystate[SDL_SCANCODE_RIGHT] || keystate[SDL_SCANCODE_D])
 		{
 			move = 1;
 			stopRocket = false;

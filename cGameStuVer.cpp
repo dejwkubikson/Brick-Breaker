@@ -37,13 +37,13 @@ cGame* cGame::getInstance()
 	return cGame::pInstance;
 }
 
-
 void cGame::initialise(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 {
 	// Get width and height of render context
 	theRend = theRenderer;
 	SDL_GetRendererOutputSize(theRenderer, &renderWidth, &renderHeight);
 	this->m_lastTime = high_resolution_clock::now();
+
 	// Clear the buffer with a black background
 	SDL_SetRenderDrawColor(theRenderer, 0, 0, 0, 255);
 	SDL_RenderPresent(theRenderer);
@@ -51,8 +51,8 @@ void cGame::initialise(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 	/* Let the computer pick a random number */
 	random_device rd;    // non-deterministic engine 
 	mt19937 gen{ rd() }; // deterministic engine. For most common uses, std::mersenne_twister_engine, fast and high-quality.
-	uniform_int_distribution<> AsteroidDis{ 1, 5 };
-	uniform_int_distribution<> AsteroidTextDis{ 0, 3 };
+	uniform_int_distribution<> AsteroidDis{ 1, 10 };
+	uniform_int_distribution<> AsteroidTextDis{ 4, 15 };
 
 	theTextureMgr->setRenderer(theRenderer);
 	theFontMgr->initFontLib();
@@ -60,31 +60,39 @@ void cGame::initialise(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 	theScore = 0;
 
 	// Store the textures
-	textureName = { "asteroid1", "asteroid2", "asteroid3", "asteroid4", "photon","thePaddle","theBackground", "explosion"};
-	texturesToUse = { "Images\\Sprites\\asteroid1.png", "Images\\Sprites\\asteroid2.png", "Images\\Sprites\\asteroid3.png", "Images\\Sprites\\asteroid4.png", "Images\\Sprites\\Photon64x32.png", "Images\\Sprites\\paddle_s.png", "Images\\Bkg\\Background1280x1280.jpg", "Images\\Sprites\\explosion.png" };
+	
+	textureName = { "background", "paddle_s", "paddle_m", "paddle_l", // background and paddles
+					"brick_black", "brick_white", "brick_green", "brick_green_dmg1", "brick_orange", "brick_orange_dmg1", "brick_green_dmg2", "brick_red", "brick_red_dmg1", "brick_red_dmg2", "brick_red_dmg3", // bricks
+					"pick_up_effect", "ball", "bonus_balls", "bonus_bigger", "bonus_score", "bonus_smaller", "bonus_speed", "bonus_time" // pick ups
+					"life", "score", "time", "wall_left", "wall_right", "wall_up" }; // additional
+	texturesToUse = { "Images\\Bkg\\Background1280x1280.jpg", "Images\\Sprites\\paddle_s.png", "Images\\Sprites\\paddle_m.png", "Images\\Sprites\\paddle_l.png", // background and paddles
+					  "Images\\Sprites\\brick_black.png", "Images\\Sprites\\brick_white.png", "Images\\Sprites\\brick_green.png", "Images\\Sprites\\brick_green_dmg1.png", "Images\\Sprites\\brick_orange.png", "Images\\Sprites\\brick_orange_dmg1.png", "Images\\Sprites\\brick_orange_dmg2.png", "Images\\Sprites\\brick_red.png", "Images\\Sprites\\brick_red_dmg1.png", "Images\\Sprites\\brick_red_dmg2.png", "Images\\Sprites\\brick_red_dmg3.png", // bricks
+					  "Images\\Sprites\\pick_up_effect.png", "Images\\Sprites\\ball.png", "Images\\Sprites\\bonus_balls.png", "Images\\Sprites\\bonus_bigger.png", "Images\\Sprites\\bonus_score.png", "Images\\Sprites\\bonus_smaller.png", "Images\\Sprites\\bonus_speed.png", "Images\\Sprites\\bonus_time.png", // pick ups
+					  "Images\\Sprites\\life.png", "Images\\Sprites\\score.png", "Images\\Sprites\\time.png", "Images\\Sprites\\wall_left.png", "Images\\Sprites\\wall_right.png", "Images\\Sprites\\wall_up.png" }; // additional
+
 	for (int tCount = 0; tCount < (int)textureName.size(); tCount++)
 	{	
 		theTextureMgr->addTexture(textureName[tCount], texturesToUse[tCount]);
 	}
 	// Create textures for Game Dialogue (text)
-	fontList = { "digital", "spaceAge" };
-	fontsToUse = { "Fonts/digital-7.ttf", "Fonts/space age.ttf" };
+	fontList = { "Main", "Secondary" };
+	fontsToUse = { "Fonts/Freshman.ttf", "Fonts/Berlin_Sans.ttf" };
 	for (int fonts = 0; fonts < (int)fontList.size(); fonts++)
 	{
 		theFontMgr->addFont(fontList[fonts], fontsToUse[fonts], 36);
 	}
-	gameTextList = { "Asteroids", "Score : ", "Move with arrows and shoot with space. "};
-	strScore = gameTextList[1];
+	gameTextList = { "Lifes: ", "Time: 10", "Score: "};
+	strScore = gameTextList[2];
 	strScore += to_string(theScore).c_str();
 
-	theTextureMgr->addTexture("Title", theFontMgr->getFont("spaceAge")->createTextTexture(theRenderer, gameTextList[0], textType::solid, { 0, 255, 0, 255 }, { 0, 0, 0, 0 }));
-	theTextureMgr->addTexture("theScore", theFontMgr->getFont("spaceAge")->createTextTexture(theRenderer, strScore.c_str(), textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
-	theTextureMgr->addTexture("Commands", theFontMgr->getFont("spaceAge")->createTextTexture(theRenderer, gameTextList[2], textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
-
+	theTextureMgr->addTexture("Lifes", theFontMgr->getFont("Main")->createTextTexture(theRenderer, gameTextList[0], textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
+	theTextureMgr->addTexture("Time", theFontMgr->getFont("Main")->createTextTexture(theRenderer, gameTextList[1], textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
+	theTextureMgr->addTexture("theScore", theFontMgr->getFont("Main")->createTextTexture(theRenderer, strScore.c_str(), textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
+	
 	// Load game sounds
-	soundList = { "theme1", "theme2", "theme3", "theme4", "shot", "explosion" };
-	soundTypes = { soundType::music, soundType::music, soundType::music, soundType::music, soundType::sfx, soundType::sfx };
-	soundsToUse = { "Audio/music_1.wav", "Audio/music_2.wav", "Audio/music_3.wav", "Audio/music_4.wav", "Audio/shot007.wav", "Audio/explosion2.wav" };
+	soundList = { "theme1", "theme2", "theme3", "theme4", "pick_up_appeared", "pick_up_sound", "ball_hit", "life_lost", "countdown", "button_click" };
+	soundTypes = { soundType::music, soundType::music, soundType::music, soundType::music, soundType::sfx, soundType::sfx, soundType::sfx, soundType::sfx, soundType::sfx, soundType::sfx };
+	soundsToUse = { "Audio/music_1.wav", "Audio/music_2.wav", "Audio/music_3.wav", "Audio/music_4.wav", "Audio/pick_up_appeared.wav", "Audio/pick_up_sound.wav", "Audio/ball_hit.wav", "Audio/life_lost.wav", "Audio/countdown.wav", "Audio/button_click.wav" };
 	for (int sounds = 0; sounds < (int)soundList.size(); sounds++)
 	{
 		theSoundMgr->add(soundList[sounds], soundsToUse[sounds], soundTypes[sounds]);
@@ -93,12 +101,12 @@ void cGame::initialise(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 	theSoundMgr->getSnd("theme1")->play(-1);
 
 	spriteBkgd.setSpritePos({ 0, 0 });
-	spriteBkgd.setTexture(theTextureMgr->getTexture("theBackground"));
-	spriteBkgd.setSpriteDimensions(theTextureMgr->getTexture("theBackground")->getTWidth(), theTextureMgr->getTexture("theBackground")->getTHeight());
+	spriteBkgd.setTexture(theTextureMgr->getTexture("background"));
+	spriteBkgd.setSpriteDimensions(theTextureMgr->getTexture("background")->getTWidth(), theTextureMgr->getTexture("background")->getTHeight());
 
-	thePaddle.setTexture(theTextureMgr->getTexture("thePaddle"));
-	thePaddle.setSpriteDimensions(theTextureMgr->getTexture("thePaddle")->getTWidth(), theTextureMgr->getTexture("thePaddle")->getTHeight());
-	// placing the sprite in the middle bottom of the screen
+	thePaddle.setTexture(theTextureMgr->getTexture("paddle_s"));
+	thePaddle.setSpriteDimensions(theTextureMgr->getTexture("paddle_s")->getTWidth(), theTextureMgr->getTexture("paddle_s")->getTHeight());
+	// placing the paddle sprite in the middle bottom of the screen
 	thePaddle.setSpritePos({ 640, (int)(1280 - thePaddle.getSpriteDimensions().h * 1.5) });
 	thePaddle.setRocketVelocity(200);
 	thePaddle.setRocketMaxSpeed(700);
@@ -106,7 +114,7 @@ void cGame::initialise(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 
 	// Create vector array of textures
 
-	for (int astro = 0; astro < 5; astro++)
+	for (int astro = 0; astro < 10; astro++)
 	{
 		theAsteroids.push_back(new cAsteroid);
 		theAsteroids[astro]->setSpritePos({ 150 * AsteroidDis(gen), 50 * AsteroidDis(gen) });
@@ -155,24 +163,24 @@ void cGame::render(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 		theExplosions[draw]->render(theRenderer, &theExplosions[draw]->getSourceRect(), &theExplosions[draw]->getSpritePos(), theExplosions[draw]->getSpriteScale());
 	}
 	// Render the Title
-	cTexture* tempTextTexture = theTextureMgr->getTexture("Title");
-	SDL_Rect pos = { 10, 10, tempTextTexture->getTextureRect().w, tempTextTexture->getTextureRect().h };
+	cTexture* tempTextTexture = theTextureMgr->getTexture("Lifes");
+	SDL_Rect pos = { 0, 10, tempTextTexture->getTextureRect().w, tempTextTexture->getTextureRect().h };
 	FPoint scale = { 1, 1 };
 	tempTextTexture->renderTexture(theRenderer, tempTextTexture->getTexture(), &tempTextTexture->getTextureRect(), &pos, scale);
 	// Render updated score value
 	
 	// Lab 7 code goes here
-	cTexture* tempTextTexture2 = theTextureMgr->getTexture("theScore");
-	SDL_Rect pos2 = { 550, 10, tempTextTexture2->getTextureRect().w, tempTextTexture2->getTextureRect().h };
-	FPoint scale2 = { 1, 1 };
-	tempTextTexture2->renderTexture(theRenderer, tempTextTexture2->getTexture(), &tempTextTexture2->getTextureRect(), &pos2, scale2);
-	theTextureMgr->addTexture("theScore", theFontMgr->getFont("spaceAge")->createTextTexture(theRenderer, strScore.c_str(), textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
-
-	cTexture* tempTextTexture3 = theTextureMgr->getTexture("Commands");
-	SDL_Rect pos3 = {10, 700, tempTextTexture3->getTextureRect().w, tempTextTexture3->getTextureRect().h };
+	cTexture* tempTextTexture2 = theTextureMgr->getTexture("Time");
+	SDL_Rect pos3 = { (1280 / 2) - (tempTextTexture2->getTextureRect().w / 2), 10, tempTextTexture2->getTextureRect().w, tempTextTexture2->getTextureRect().h };
 	FPoint scale3 = { 1, 1 };
-	tempTextTexture3->renderTexture(theRenderer, tempTextTexture3->getTexture(), &tempTextTexture3->getTextureRect(), &pos3, scale3);
-	theTextureMgr->addTexture("Commands", theFontMgr->getFont("spaceAge")->createTextTexture(theRenderer, gameTextList[2], textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
+	tempTextTexture2->renderTexture(theRenderer, tempTextTexture2->getTexture(), &tempTextTexture2->getTextureRect(), &pos3, scale3);
+	theTextureMgr->addTexture("Time", theFontMgr->getFont("Main")->createTextTexture(theRenderer, gameTextList[2], textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
+
+	cTexture* tempTextTexture3 = theTextureMgr->getTexture("theScore");
+	SDL_Rect pos2 = { 1280 - tempTextTexture3->getTextureRect().w, 10, tempTextTexture3->getTextureRect().w, tempTextTexture3->getTextureRect().h };
+	FPoint scale2 = { 1, 1 };
+	tempTextTexture3->renderTexture(theRenderer, tempTextTexture3->getTexture(), &tempTextTexture3->getTextureRect(), &pos2, scale2);
+	theTextureMgr->addTexture("theScore", theFontMgr->getFont("Main")->createTextTexture(theRenderer, strScore.c_str(), textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
 
 	// render the rocket
 	thePaddle.render(theRenderer, &thePaddle.getSpriteDimensions(), &thePaddle.getSpritePos(), thePaddle.getSpriteRotAngle(), &thePaddle.getSpriteCentre(), thePaddle.getSpriteScale());
@@ -255,24 +263,23 @@ void cGame::update(double deltaTime)
 				theExplosions[index]->setSpriteTranslation({ 0, 0 });
 				theExplosions[index]->setActive(true);
 				theExplosions[index]->setNoFrames(6);
-				theExplosions[index]->setTexture(theTextureMgr->getTexture("explosion"));
-				theExplosions[index]->setSpriteDimensions(theTextureMgr->getTexture("explosion")->getTWidth()/ theExplosions[index]->getNoFrames(), theTextureMgr->getTexture("explosion")->getTHeight());
+				theExplosions[index]->setTexture(theTextureMgr->getTexture("pick_up_effect"));
+				theExplosions[index]->setSpriteDimensions(theTextureMgr->getTexture("pick_up_effect")->getTWidth()/ theExplosions[index]->getNoFrames(), theTextureMgr->getTexture("pick_up_effect")->getTHeight());
 				theExplosions[index]->setSpritePos({ (*asteroidIterator)->getSpritePos().x + (int)((*asteroidIterator)->getSpritePos().w/2), (*asteroidIterator)->getSpritePos().y + (int)((*asteroidIterator)->getSpritePos().h / 2) });
 
-				theSoundMgr->getSnd("explosion")->play(0);
+				theSoundMgr->getSnd("pick_up_sound")->play(0);
 				
 				// Lab 7 code goes here
 				theTextureMgr->deleteTexture("theScore");
-				theScore += 10;
+				theScore += 400;
 				strScore = "Score: ";
 				strScore += to_string(theScore).c_str();
-				theTextureMgr->addTexture("theScore", theFontMgr->getFont("spaceAge")->createTextTexture(theRend, strScore.c_str(), textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
-
+				theTextureMgr->addTexture("theScore", theFontMgr->getFont("Main")->createTextTexture(theRend, strScore.c_str(), textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));		
 			}
 		}
 	}
 
-	// Update the Rockets position
+	// Update the paddle's position
 	thePaddle.update(deltaTime);
 }
 
@@ -289,112 +296,30 @@ bool cGame::getInput(bool theLoop)
 
 		switch (event.type)
 		{
-			case SDL_MOUSEBUTTONDOWN:
-				switch (event.button.button)
-				{
-				case SDL_BUTTON_LEFT:
-				{
-				}
-				break;
-				case SDL_BUTTON_RIGHT:
-					break;
-				default:
-					break;
-				}
-				break;
-			case SDL_MOUSEBUTTONUP:
-				switch (event.button.button)
-				{
-				case SDL_BUTTON_LEFT:
-				{
-				}
-				break;
-				case SDL_BUTTON_RIGHT:
-					break;
-				default:
-					break;
-				}
-				break;
-			case SDL_MOUSEMOTION:
-			break;
 			case SDL_KEYDOWN:
 				switch (event.key.keysym.sym)
 				{
 				case SDLK_ESCAPE:
 					theLoop = false;
 					break;
-				case SDLK_DOWN:
-				{
-
-				}
-				break;
-
-				case SDLK_UP:
-				{
-
-				}
-				break;
-				case SDLK_RIGHT:
-				{
-
-				}
-				break;
-
-				case SDLK_LEFT:
-				{
-
-				}
-				break;
 				case SDLK_SPACE:
 				{
 					theBullets.push_back(new cBullet);
 					int numBullets = theBullets.size() - 1;
 					theBullets[numBullets]->setSpritePos({ thePaddle.getBoundingRect().x + thePaddle.getSpriteCentre().x, thePaddle.getBoundingRect().y + thePaddle.getSpriteCentre().y });
 					theBullets[numBullets]->setSpriteTranslation({ 50, 50 });
-					theBullets[numBullets]->setTexture(theTextureMgr->getTexture("photon"));
-					theBullets[numBullets]->setSpriteDimensions(theTextureMgr->getTexture("photon")->getTWidth(), theTextureMgr->getTexture("photon")->getTHeight());
+					theBullets[numBullets]->setTexture(theTextureMgr->getTexture("ball"));
+					theBullets[numBullets]->setSpriteDimensions(theTextureMgr->getTexture("ball")->getTWidth(), theTextureMgr->getTexture("ball")->getTHeight());
 					theBullets[numBullets]->setBulletVelocity(50);
 					theBullets[numBullets]->setSpriteRotAngle(thePaddle.getSpriteRotAngle());
 					theBullets[numBullets]->setActive(true);
 					cout << "Bullet added to Vector at position - x: " << thePaddle.getBoundingRect().x << " y: " << thePaddle.getBoundingRect().y << endl;
 				}
-				theSoundMgr->getSnd("shot")->play(0);
+				theSoundMgr->getSnd("ball_hit")->play(0);
 				break;
 				default:
 					break;
 				}
-
-			case SDL_KEYUP:
-				switch (event.key.keysym.sym)
-				{
-				case SDLK_DOWN:
-				{
-
-				}
-				break;
-
-				case SDLK_UP:
-				{
-
-				}
-				break;
-				case SDLK_RIGHT:
-				{
-
-				}
-				break;
-
-				case SDLK_LEFT:
-				{
-
-				}
-				break;
-				default:
-					break;
-				}
-
-			default:
-				break;
 		}
 		
 	}
