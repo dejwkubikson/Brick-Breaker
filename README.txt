@@ -12,7 +12,6 @@ cGameStuVer:
 - cleaned code from unused functions
 
 27/11
-
 cGameStuVer:
 - added walls on the left, right and top side of the screen
 - fixed bug with two textures giving fatal errors
