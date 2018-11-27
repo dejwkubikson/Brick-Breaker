@@ -25,12 +25,6 @@ SDL_Event event;
 
 void cRocket::update(double deltaTime)
 {
-//	auto rads = PI / 180.0f * (this->getSpriteRotAngle() - 90.0f);
-
-//	FPoint direction = { 0.0f, 0.0f };
-//	direction.X = (float)(cos(rads));
-//	direction.Y = (float)(sin(rads));
-
 	const Uint8* keystate = SDL_GetKeyboardState(NULL);
 
 	if (keystate[SDL_SCANCODE_LEFT] || keystate[SDL_SCANCODE_A])
@@ -70,11 +64,11 @@ void cRocket::update(double deltaTime)
 
 	currentSpritePos.x += (int)(this->rocketVelocity * this->move * deltaTime);
 	
-	if (currentSpritePos.x < 0)
-		currentSpritePos.x = 0;
+	if (currentSpritePos.x < 0 + wallWidth)
+		currentSpritePos.x = 0 + wallWidth;
 
-	if (currentSpritePos.x > 1280 - getSpriteDimensions().w)
-		currentSpritePos.x = 1280 - getSpriteDimensions().w;
+	if (currentSpritePos.x > 1280 - getSpriteDimensions().w - wallWidth)
+		currentSpritePos.x = 1280 - getSpriteDimensions().w - wallWidth;
 
 	this->setSpritePos({ currentSpritePos.x , currentSpritePos.y  });
 	this->setBoundingRect(this->getSpritePos());
@@ -132,4 +126,13 @@ Gets the rocket's max speed
 int cRocket::getRocketMaxSpeed()
 {
 	return rocketMaxSpeed;
+}
+/*
+================================================================ =
+Sets the wall's width
+================================================================ =
+*/
+void cRocket::setMovingWidth(int wallSizeW)
+{
+	wallWidth = wallSizeW;
 }

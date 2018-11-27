@@ -52,7 +52,7 @@ void cGame::initialise(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 	random_device rd;    // non-deterministic engine 
 	mt19937 gen{ rd() }; // deterministic engine. For most common uses, std::mersenne_twister_engine, fast and high-quality.
 	uniform_int_distribution<> AsteroidDis{ 1, 10 };
-	uniform_int_distribution<> AsteroidTextDis{ 4, 15 };
+	uniform_int_distribution<> AsteroidTextDis{ 4, 14 };
 
 	theTextureMgr->setRenderer(theRenderer);
 	theFontMgr->initFontLib();
@@ -60,15 +60,14 @@ void cGame::initialise(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 	theScore = 0;
 
 	// Store the textures
-	
-	textureName = { "background", "paddle_s", "paddle_m", "paddle_l", // background and paddles
-					"brick_black", "brick_white", "brick_green", "brick_green_dmg1", "brick_orange", "brick_orange_dmg1", "brick_green_dmg2", "brick_red", "brick_red_dmg1", "brick_red_dmg2", "brick_red_dmg3", // bricks
-					"pick_up_effect", "ball", "bonus_balls", "bonus_bigger", "bonus_score", "bonus_smaller", "bonus_speed", "bonus_time" // pick ups
-					"life", "score", "time", "wall_left", "wall_right", "wall_up" }; // additional
-	texturesToUse = { "Images\\Bkg\\Background1280x1280.jpg", "Images\\Sprites\\paddle_s.png", "Images\\Sprites\\paddle_m.png", "Images\\Sprites\\paddle_l.png", // background and paddles
-					  "Images\\Sprites\\brick_black.png", "Images\\Sprites\\brick_white.png", "Images\\Sprites\\brick_green.png", "Images\\Sprites\\brick_green_dmg1.png", "Images\\Sprites\\brick_orange.png", "Images\\Sprites\\brick_orange_dmg1.png", "Images\\Sprites\\brick_orange_dmg2.png", "Images\\Sprites\\brick_red.png", "Images\\Sprites\\brick_red_dmg1.png", "Images\\Sprites\\brick_red_dmg2.png", "Images\\Sprites\\brick_red_dmg3.png", // bricks
-					  "Images\\Sprites\\pick_up_effect.png", "Images\\Sprites\\ball.png", "Images\\Sprites\\bonus_balls.png", "Images\\Sprites\\bonus_bigger.png", "Images\\Sprites\\bonus_score.png", "Images\\Sprites\\bonus_smaller.png", "Images\\Sprites\\bonus_speed.png", "Images\\Sprites\\bonus_time.png", // pick ups
-					  "Images\\Sprites\\life.png", "Images\\Sprites\\score.png", "Images\\Sprites\\time.png", "Images\\Sprites\\wall_left.png", "Images\\Sprites\\wall_right.png", "Images\\Sprites\\wall_up.png" }; // additional
+	textureName = { "background", "paddle_s", "paddle_m", "paddle_l", // background and paddles - 4
+					"brick_black", "brick_white", "brick_green", "brick_green_dmg1", "brick_orange", "brick_orange_dmg1", "brick_green_dmg2", "brick_red", "brick_red_dmg1", "brick_red_dmg2", "brick_red_dmg3", // bricks - 11
+					"pick_up_effect", "ball", "bonus_balls", "bonus_bigger", "bonus_score", "bonus_smaller", "bonus_speed", "bonus_time", // pick ups - 8
+					"life", "score", "time", "wall_left", "wall_right", "wall_up" }; // additional - 6
+	texturesToUse = { "Images\\Bkg\\Background1280x1280.jpg", "Images\\Sprites\\paddle_s.png", "Images\\Sprites\\paddle_m.png", "Images\\Sprites\\paddle_l.png", // background and paddles - 4
+					  "Images\\Sprites\\brick_black.png", "Images\\Sprites\\brick_white.png", "Images\\Sprites\\brick_green.png", "Images\\Sprites\\brick_green_dmg1.png", "Images\\Sprites\\brick_orange.png", "Images\\Sprites\\brick_orange_dmg1.png", "Images\\Sprites\\brick_orange_dmg2.png", "Images\\Sprites\\brick_red.png", "Images\\Sprites\\brick_red_dmg1.png", "Images\\Sprites\\brick_red_dmg2.png", "Images\\Sprites\\brick_red_dmg3.png", // bricks - 11
+					  "Images\\Sprites\\pick_up_effect.png", "Images\\Sprites\\ball.png", "Images\\Sprites\\bonus_balls.png", "Images\\Sprites\\bonus_bigger.png", "Images\\Sprites\\bonus_score.png", "Images\\Sprites\\bonus_smaller.png", "Images\\Sprites\\bonus_speed.png", "Images\\Sprites\\bonus_time.png", // pick ups - 8
+					  "Images\\Sprites\\life.png", "Images\\Sprites\\score.png", "Images\\Sprites\\time.png", "Images\\Sprites\\wall_left.png", "Images\\Sprites\\wall_right.png", "Images\\Sprites\\wall_up.png" }; // additional - 6
 
 	for (int tCount = 0; tCount < (int)textureName.size(); tCount++)
 	{	
@@ -107,17 +106,24 @@ void cGame::initialise(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 	thePaddle.setTexture(theTextureMgr->getTexture("paddle_s"));
 	thePaddle.setSpriteDimensions(theTextureMgr->getTexture("paddle_s")->getTWidth(), theTextureMgr->getTexture("paddle_s")->getTHeight());
 	// placing the paddle sprite in the middle bottom of the screen
-	thePaddle.setSpritePos({ 640, (int)(1280 - thePaddle.getSpriteDimensions().h * 1.5) });
+	thePaddle.setSpritePos({ 500, (int)(1280 - thePaddle.getSpriteDimensions().h * 1.5) });
 	thePaddle.setRocketVelocity(200);
 	thePaddle.setRocketMaxSpeed(700);
 	thePaddle.setSpriteTranslation({ 50,50 });
 
+	// adding up and side wall textures
+	wallTextureLeft.setTexture(theTextureMgr->getTexture("wall_left"));
+	wallTextureLeft.setSpriteDimensions(theTextureMgr->getTexture("wall_left")->getTWidth(), theTextureMgr->getTexture("wall_left")->getTHeight());
+	wallTextureRight.setTexture(theTextureMgr->getTexture("wall_right"));
+	wallTextureRight.setSpriteDimensions(theTextureMgr->getTexture("wall_right")->getTWidth(), theTextureMgr->getTexture("wall_right")->getTHeight());
+	wallTextureTop.setTexture(theTextureMgr->getTexture("wall_up"));
+	wallTextureTop.setSpriteDimensions(theTextureMgr->getTexture("wall_up")->getTWidth(), theTextureMgr->getTexture("wall_up")->getTHeight());
+	
 	// Create vector array of textures
-
 	for (int astro = 0; astro < 10; astro++)
 	{
 		theAsteroids.push_back(new cAsteroid);
-		theAsteroids[astro]->setSpritePos({ 150 * AsteroidDis(gen), 50 * AsteroidDis(gen) });
+		theAsteroids[astro]->setSpritePos({ 150 * AsteroidDis(gen), wallTextureTop.getSpriteDimensions().h + 50 * AsteroidDis(gen) });
 		theAsteroids[astro]->setSpriteTranslation({ 100, -50 });
 		int randAsteroid = AsteroidTextDis(gen);
 		theAsteroids[astro]->setTexture(theTextureMgr->getTexture(textureName[randAsteroid]));
@@ -126,6 +132,12 @@ void cGame::initialise(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 		theAsteroids[astro]->setActive(true);
 	}
 
+	// calculating how many wall textures fit in screen
+	wallNumberTop = (int)(1280 / wallTextureTop.getSpriteDimensions().w) + 1;
+	wallNumberSide = (int)(1280 / wallTextureLeft.getSpriteDimensions().h);
+
+	// passing wall's width to cRocket
+	thePaddle.setMovingWidth(wallTextureLeft.getSpriteDimensions().w);
 }
 
 void cGame::run(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
@@ -147,6 +159,26 @@ void cGame::render(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 {
 	SDL_RenderClear(theRenderer);
 	spriteBkgd.render(theRenderer, NULL, NULL, spriteBkgd.getSpriteScale());
+	
+	// Create side walls
+	for (int i = 0; i < wallNumberSide; i++)
+	{
+		// starting point left side and just under the upper wall
+		wallTextureLeft.setSpritePos({ 0 , wallTextureTop.getSpriteDimensions().h + i*wallTextureLeft.getSpriteDimensions().h });
+		wallTextureLeft.render(theRenderer, &wallTextureLeft.getSpriteDimensions(), &wallTextureLeft.getSpritePos(), wallTextureLeft.getSpriteRotAngle(), &wallTextureLeft.getSpriteCentre(), wallTextureLeft.getSpriteScale());
+
+		// starting point right side (screen width - texture width) and just under the upper wall
+		wallTextureRight.setSpritePos({ 1280 - wallTextureRight.getSpriteDimensions().w, wallTextureTop.getSpriteDimensions().h + i*wallTextureRight.getSpriteDimensions().h });
+		wallTextureRight.render(theRenderer, &wallTextureRight.getSpriteDimensions(), &wallTextureRight.getSpritePos(), wallTextureRight.getSpriteRotAngle(), &wallTextureRight.getSpriteCentre(), wallTextureRight.getSpriteScale());
+	}
+
+	// Create up wall
+	for (int i = 0; i < wallNumberTop; i++)
+	{
+		wallTextureTop.setSpritePos({ i*wallTextureTop.getSpriteDimensions().w, 0 });
+		wallTextureTop.render(theRenderer, &wallTextureTop.getSpriteDimensions(), &wallTextureTop.getSpritePos(), wallTextureTop.getSpriteRotAngle(), &wallTextureTop.getSpriteCentre(), wallTextureTop.getSpriteScale());
+	}
+
 	// Render each asteroid in the vector array
 	for (int draw = 0; draw < (int)theAsteroids.size(); draw++)
 	{
@@ -171,7 +203,7 @@ void cGame::render(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 	
 	// Lab 7 code goes here
 	cTexture* tempTextTexture2 = theTextureMgr->getTexture("Time");
-	SDL_Rect pos3 = { (1280 / 2) - (tempTextTexture2->getTextureRect().w / 2), 10, tempTextTexture2->getTextureRect().w, tempTextTexture2->getTextureRect().h };
+	SDL_Rect pos3 = { (1000 / 2) - (tempTextTexture2->getTextureRect().w / 2), 10, tempTextTexture2->getTextureRect().w, tempTextTexture2->getTextureRect().h };
 	FPoint scale3 = { 1, 1 };
 	tempTextTexture2->renderTexture(theRenderer, tempTextTexture2->getTexture(), &tempTextTexture2->getTextureRect(), &pos3, scale3);
 	theTextureMgr->addTexture("Time", theFontMgr->getFont("Main")->createTextTexture(theRenderer, gameTextList[2], textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
@@ -182,14 +214,13 @@ void cGame::render(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 	tempTextTexture3->renderTexture(theRenderer, tempTextTexture3->getTexture(), &tempTextTexture3->getTextureRect(), &pos2, scale2);
 	theTextureMgr->addTexture("theScore", theFontMgr->getFont("Main")->createTextTexture(theRenderer, strScore.c_str(), textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
 
-	// render the rocket
+	// render the paddle
 	thePaddle.render(theRenderer, &thePaddle.getSpriteDimensions(), &thePaddle.getSpritePos(), thePaddle.getSpriteRotAngle(), &thePaddle.getSpriteCentre(), thePaddle.getSpriteScale());
 	SDL_RenderPresent(theRenderer);
 }
 
 void cGame::render(SDL_Window* theSDLWND, SDL_Renderer* theRenderer, double rotAngle, SDL_Point* spriteCentre)
 {
-
 	SDL_RenderPresent(theRenderer);
 }
 
@@ -251,13 +282,14 @@ void cGame::update(double deltaTime)
 	for (vector<cBullet*>::iterator bulletIterartor = theBullets.begin(); bulletIterartor != theBullets.end(); ++bulletIterartor)
 	{
 		//(*bulletIterartor)->update(deltaTime);
+		
+		(*bulletIterartor)->update(deltaTime);
 		for (vector<cAsteroid*>::iterator asteroidIterator = theAsteroids.begin(); asteroidIterator != theAsteroids.end(); ++asteroidIterator)
 		{
 			if ((*asteroidIterator)->collidedWith(&(*asteroidIterator)->getBoundingRect(), &(*bulletIterartor)->getBoundingRect()))
 			{
 				// if a collision set the bullet and asteroid to false
 				(*asteroidIterator)->setActive(false);
-				(*bulletIterartor)->setActive(false);
 				theExplosions.push_back(new cSprite);
 				int index = theExplosions.size()-1;
 				theExplosions[index]->setSpriteTranslation({ 0, 0 });
@@ -271,11 +303,16 @@ void cGame::update(double deltaTime)
 				
 				// Lab 7 code goes here
 				theTextureMgr->deleteTexture("theScore");
-				theScore += 400;
+				theScore += 100;
 				strScore = "Score: ";
 				strScore += to_string(theScore).c_str();
 				theTextureMgr->addTexture("theScore", theFontMgr->getFont("Main")->createTextTexture(theRend, strScore.c_str(), textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));		
 			}
+		}
+
+		if ((*bulletIterartor)->collidedWith(&(thePaddle).getBoundingRect(), &(*bulletIterartor)->getBoundingRect()))
+		{
+			(*bulletIterartor)->bulletDirectionY = 1;
 		}
 	}
 
@@ -310,8 +347,10 @@ bool cGame::getInput(bool theLoop)
 					theBullets[numBullets]->setSpriteTranslation({ 50, 50 });
 					theBullets[numBullets]->setTexture(theTextureMgr->getTexture("ball"));
 					theBullets[numBullets]->setSpriteDimensions(theTextureMgr->getTexture("ball")->getTWidth(), theTextureMgr->getTexture("ball")->getTHeight());
-					theBullets[numBullets]->setBulletVelocity(50);
-					theBullets[numBullets]->setSpriteRotAngle(thePaddle.getSpriteRotAngle());
+					theBullets[numBullets]->setBulletVelocity(10);
+					// passing walls' dimensions to cBulletStuVer
+					theBullets[numBullets]->setMovingPoints(wallTextureLeft.getSpriteDimensions().w, wallTextureTop.getSpriteDimensions().h);
+					theBullets[numBullets]->setSpriteRotAngle(50);
 					theBullets[numBullets]->setActive(true);
 					cout << "Bullet added to Vector at position - x: " << thePaddle.getBoundingRect().x << " y: " << thePaddle.getBoundingRect().y << endl;
 				}

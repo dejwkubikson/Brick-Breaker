@@ -42,6 +42,9 @@ private:
 
 	// Sprites for displaying background and rocket textures
 	cSprite spriteBkgd;
+	cSprite wallTextureTop;
+	cSprite wallTextureLeft;
+	cSprite wallTextureRight;
 	cRocket thePaddle;
 	cAsteroid theAsteroid;
 	cBullet theBullet;
@@ -66,6 +69,8 @@ private:
 	int renderWidth, renderHeight;
 	int theScore;
 	string strScore;
+	int wallNumberTop;
+	int wallNumberSide;
 };
 
 #endif
