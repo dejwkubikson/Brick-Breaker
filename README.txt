@@ -39,3 +39,16 @@ Brick images:
 Wall images: 
 - changed width to 40 pixels (right and left walls)
 - changed height to 40 pixels (top wall)
+
+29/11
+Project:
+- added XInput.lib
+
+cGameStuVer:
+- designed third level
+- added points for specific destroyed bricks (10 for white, 25 for green and so on)
+- added a timer
+- added 3 heart textures that represent player's lifes
+- added main and end menu
+- added text to main and end menu
+- started adding buttons

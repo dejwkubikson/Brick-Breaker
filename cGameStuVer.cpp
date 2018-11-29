@@ -11,6 +11,11 @@ static cFontMgr* theFontMgr = cFontMgr::getInstance();
 static cSoundMgr* theSoundMgr = cSoundMgr::getInstance();
 
 string totScore = "";
+double timePassed = 0;
+int timeLeft = 10;
+int lifesLeft = 3;
+string stringTime = "";
+
 SDL_Renderer* theRend;
 
 
@@ -80,14 +85,19 @@ void cGame::initialise(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 	{
 		theFontMgr->addFont(fontList[fonts], fontsToUse[fonts], 36);
 	}
-	gameTextList = { "Lifes: ", "Time: 10", "Score: "};
-	strScore = gameTextList[2];
+	gameTextList = {"Time: ", "Score: ", "Brick Breaker", "Destroy all the bricks before you ran out of time!", "Use arrow keys or A / D to move the paddle.", "Leaderboard", "Player: score"};
+	strScore = gameTextList[1];
+	stringTime = gameTextList[0];
 	strScore += to_string(theScore).c_str();
 
-	theTextureMgr->addTexture("Lifes", theFontMgr->getFont("Main")->createTextTexture(theRenderer, gameTextList[0], textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
-	theTextureMgr->addTexture("Time", theFontMgr->getFont("Main")->createTextTexture(theRenderer, gameTextList[1], textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
+	theTextureMgr->addTexture("Time", theFontMgr->getFont("Main")->createTextTexture(theRenderer, stringTime.c_str(), textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
 	theTextureMgr->addTexture("theScore", theFontMgr->getFont("Main")->createTextTexture(theRenderer, strScore.c_str(), textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
-	
+	theTextureMgr->addTexture("Title", theFontMgr->getFont("Main")->createTextTexture(theRenderer, gameTextList[2], textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
+	theTextureMgr->addTexture("Objective", theFontMgr->getFont("Secondary")->createTextTexture(theRenderer, gameTextList[3], textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
+	theTextureMgr->addTexture("Instructions", theFontMgr->getFont("Secondary")->createTextTexture(theRenderer, gameTextList[4], textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
+	theTextureMgr->addTexture("Leaderboard", theFontMgr->getFont("Main")->createTextTexture(theRenderer, gameTextList[5], textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
+	theTextureMgr->addTexture("PlayerScore", theFontMgr->getFont("Secondary")->createTextTexture(theRenderer, gameTextList[6], textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
+
 	// Load game sounds
 	soundList = { "theme1", "theme2", "theme3", "theme4", "pick_up_appeared", "pick_up_sound", "ball_hit", "life_lost", "countdown", "button_click" };
 	soundTypes = { soundType::music, soundType::music, soundType::music, soundType::music, soundType::sfx, soundType::sfx, soundType::sfx, soundType::sfx, soundType::sfx, soundType::sfx };
@@ -119,6 +129,19 @@ void cGame::initialise(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 	wallTextureTop.setTexture(theTextureMgr->getTexture("wall_up"));
 	wallTextureTop.setSpriteDimensions(theTextureMgr->getTexture("wall_up")->getTWidth(), theTextureMgr->getTexture("wall_up")->getTHeight());
 	
+	lifeTexture.setTexture(theTextureMgr->getTexture("life"));
+	lifeTexture.setSpriteDimensions(theTextureMgr->getTexture("life")->getTWidth(), theTextureMgr->getTexture("life")->getTHeight());
+	// some kind of weird stuff ???
+	//lifeTexture.setSpritePos({ 0 , theTextureMgr->getTexture("life")->getTHeight() });
+
+	// adding life textures
+	/*for (int i = 0; i < lifesLeft; i++)
+	{
+		theLifes[i]->setTexture(theTextureMgr->getTexture("life"));
+		theLifes[i]->setSpriteDimensions(theTextureMgr->getTexture("life")->getTWidth(), theTextureMgr->getTexture("life")->getTHeight());
+		theLifes[i]->setSpritePos({theTextureMgr->getTexture("life")->getTWidth(), theTextureMgr->getTexture("life")->getTHeight() + 4});
+	}*/
+	
 	// Create vector array of textures
 	/*
 	for (int astro = 0; astro < 10; astro++)
@@ -133,10 +156,9 @@ void cGame::initialise(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 		theAsteroids[astro]->setActive(true);
 	}*/
 
-
 	// FIRST LEVEL DESIGN //
 	int brickCount = 0;
-	/*
+	
 	// The layout of the bricks will be 16 columns (X), 8 rows (Y).
 	for (int x = 0; x < 16; x++)
 	{
@@ -186,7 +208,7 @@ void cGame::initialise(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 			brickCount++;
 		}
 	}
-	*/
+	
 	/*
 	// SECOND LEVEL DESIGN
 	for (int x = 0; x < 16; x++)
@@ -251,6 +273,73 @@ void cGame::initialise(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 		}
 	}
 	*/
+	/*
+	// THIRD LEVEL DESIGN
+	for (int x = 0; x < 14; x++)
+	{
+		// empty space (2 rows) between top wall
+		for (int y = 3; y < 12; y++)
+		{
+			theAsteroids.push_back(new cAsteroid);
+			
+			// all bricks have same dimensions
+			int tempDimensionW = theTextureMgr->getTexture("brick_white")->getTWidth();
+			int tempDimensionH = theTextureMgr->getTexture("brick_white")->getTHeight();
+			
+			// two red rows
+			if (y < 5 && y >= 3)
+			{
+				theAsteroids[brickCount]->setTexture(theTextureMgr->getTexture("brick_red"));
+				theAsteroids[brickCount]->health = 4;
+				theAsteroids[brickCount]->colour = "red";
+			}
+
+			// two orange rows
+			if (y < 7 && y >= 5)
+			{
+				theAsteroids[brickCount]->setTexture(theTextureMgr->getTexture("brick_orange"));
+				theAsteroids[brickCount]->health = 3;
+				theAsteroids[brickCount]->colour = "orange";
+			}
+
+			// two green rows
+			if (y < 9 && y >= 7)
+			{
+				theAsteroids[brickCount]->setTexture(theTextureMgr->getTexture("brick_green"));
+				theAsteroids[brickCount]->health = 2;
+				theAsteroids[brickCount]->colour = "green";
+			}
+
+			// two white rows
+			if (y < 11 && y >= 9)
+			{
+				theAsteroids[brickCount]->setTexture(theTextureMgr->getTexture("brick_white"));
+				theAsteroids[brickCount]->health = 1;
+				theAsteroids[brickCount]->colour = "white";
+			}
+
+			// last row is black (closest to player)
+			if(y >= 11)
+			{
+				theAsteroids[brickCount]->setTexture(theTextureMgr->getTexture("brick_black"));
+				theAsteroids[brickCount]->health = 0;
+				theAsteroids[brickCount]->colour = "black";
+			}
+
+			if (x >= 13)
+			{
+				theAsteroids[brickCount]->setTexture(theTextureMgr->getTexture("brick_black"));
+				theAsteroids[brickCount]->health = 0;
+				theAsteroids[brickCount]->colour = "black";
+			}
+
+			theAsteroids[brickCount]->setSpriteDimensions(tempDimensionW, tempDimensionH);
+			theAsteroids[brickCount]->setSpritePos({ wallTextureLeft.getSpriteDimensions().w + (int)(tempDimensionW * x)  , wallTextureTop.getSpriteDimensions().h + (int)(tempDimensionH * y) });
+			theAsteroids[brickCount]->setActive(true);
+			brickCount++;
+		}
+	}*/
+
 	// calculating how many wall textures fit in screen
 	wallNumberTop = (int)(1280 / wallTextureTop.getSpriteDimensions().w) + 1;
 	wallNumberSide = (int)(1280 / wallTextureLeft.getSpriteDimensions().h);
@@ -277,67 +366,141 @@ void cGame::run(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 void cGame::render(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 {
 	SDL_RenderClear(theRenderer);
-	spriteBkgd.render(theRenderer, NULL, NULL, spriteBkgd.getSpriteScale());
 	
-	// Create side walls
-	for (int i = 0; i < wallNumberSide; i++)
+	switch (theGameState)
 	{
-		// starting point left side and just under the upper wall
-		wallTextureLeft.setSpritePos({ 0 , wallTextureTop.getSpriteDimensions().h + i*wallTextureLeft.getSpriteDimensions().h });
-		wallTextureLeft.render(theRenderer, &wallTextureLeft.getSpriteDimensions(), &wallTextureLeft.getSpritePos(), wallTextureLeft.getSpriteRotAngle(), &wallTextureLeft.getSpriteCentre(), wallTextureLeft.getSpriteScale());
-
-		// starting point right side (screen width - texture width) and just under the upper wall
-		wallTextureRight.setSpritePos({ 1280 - wallTextureRight.getSpriteDimensions().w, wallTextureTop.getSpriteDimensions().h + i*wallTextureRight.getSpriteDimensions().h });
-		wallTextureRight.render(theRenderer, &wallTextureRight.getSpriteDimensions(), &wallTextureRight.getSpritePos(), wallTextureRight.getSpriteRotAngle(), &wallTextureRight.getSpriteCentre(), wallTextureRight.getSpriteScale());
-	}
-
-	// Create top wall
-	for (int i = 0; i < wallNumberTop; i++)
+	case gameState::menu:
 	{
-		wallTextureTop.setSpritePos({ i*wallTextureTop.getSpriteDimensions().w, 0 });
-		wallTextureTop.render(theRenderer, &wallTextureTop.getSpriteDimensions(), &wallTextureTop.getSpritePos(), wallTextureTop.getSpriteRotAngle(), &wallTextureTop.getSpriteCentre(), wallTextureTop.getSpriteScale());
-	}
+		// Background for menu
+		spriteBkgd.render(theRenderer, NULL, NULL, spriteBkgd.getSpriteScale());
 
-	// Render each asteroid in the vector array
-	for (int draw = 0; draw < (int)theAsteroids.size(); draw++)
+		// Title
+		cTexture* tempTextTexture = theTextureMgr->getTexture("Title");
+		SDL_Rect pos = { (1280 / 2) - (tempTextTexture->getTextureRect().w), 100, tempTextTexture->getTextureRect().w * 2, tempTextTexture->getTextureRect().h * 2 };
+		FPoint scale = { 1, 1 };
+		tempTextTexture->renderTexture(theRenderer, tempTextTexture->getTexture(), &tempTextTexture->getTextureRect(), &pos, scale);
+
+		// Objective
+		tempTextTexture = theTextureMgr->getTexture("Objective");
+		pos = { (1280 / 2) - (tempTextTexture->getTextureRect().w / 2), 200, tempTextTexture->getTextureRect().w, tempTextTexture->getTextureRect().h };
+		scale = { 1 , 1 };
+		tempTextTexture->renderTexture(theRenderer, tempTextTexture->getTexture(), &tempTextTexture->getTextureRect(), &pos, scale);
+		
+		// Instructions
+		tempTextTexture = theTextureMgr->getTexture("Instructions");
+		pos = { (1280 / 2) - (tempTextTexture->getTextureRect().w / 2), 250, tempTextTexture->getTextureRect().w, tempTextTexture->getTextureRect().h };
+		tempTextTexture->renderTexture(theRenderer, tempTextTexture->getTexture(), &tempTextTexture->getTextureRect(), &pos, scale);
+
+		/* BUTTONS TO ADD
+		theButtonMgr->getBtn("play_btn")->render(theRenderer, &theButtonMgr->getBtn("play_btn")->getSpriteDimensions(), &theButtonMgr->getBtn("play_btn")->getSpritePos(), theButtonMgr->getBtn("play_btn")->getSpriteScale());
+		theButtonMgr->getBtn("exit_btn")->setSpritePos({ 400, 375 });
+		theButtonMgr->getBtn("exit_btn")->render(theRenderer, &theButtonMgr->getBtn("exit_btn")->getSpriteDimensions(), &theButtonMgr->getBtn("exit_btn")->getSpritePos(), theButtonMgr->getBtn("exit_btn")->getSpriteScale());
+		*/
+	}break;
+	case gameState::playing:
 	{
-		theAsteroids[draw]->render(theRenderer, &theAsteroids[draw]->getSpriteDimensions(), &theAsteroids[draw]->getSpritePos(), theAsteroids[draw]->getSpriteRotAngle(), &theAsteroids[draw]->getSpriteCentre(), theAsteroids[draw]->getSpriteScale());
-	}
+		// Ingame background
+		spriteBkgd.render(theRenderer, NULL, NULL, spriteBkgd.getSpriteScale());
 
-	// Render each bullet in the vector array
-	for (int draw = 0; draw < (int)theBullets.size(); draw++)
-	{
-		theBullets[draw]->render(theRenderer, &theBullets[draw]->getSpriteDimensions(), &theBullets[draw]->getSpritePos(), theBullets[draw]->getSpriteRotAngle(), &theBullets[draw]->getSpriteCentre(), theBullets[draw]->getSpriteScale());
-	}
+		// Create side walls
+		for (int i = 0; i < wallNumberSide; i++)
+		{
+			// starting point left side and just under the upper wall
+			wallTextureLeft.setSpritePos({ 0 , wallTextureTop.getSpriteDimensions().h + i*wallTextureLeft.getSpriteDimensions().h });
+			wallTextureLeft.render(theRenderer, &wallTextureLeft.getSpriteDimensions(), &wallTextureLeft.getSpritePos(), wallTextureLeft.getSpriteRotAngle(), &wallTextureLeft.getSpriteCentre(), wallTextureLeft.getSpriteScale());
 
-	// Render each explosion in the vector array
-	for (int draw = 0; draw < (int)theExplosions.size(); draw++)
-	{
-		theExplosions[draw]->render(theRenderer, &theExplosions[draw]->getSourceRect(), &theExplosions[draw]->getSpritePos(), theExplosions[draw]->getSpriteScale());
-	}
+			// starting point right side (screen width - texture width) and just under the upper wall
+			wallTextureRight.setSpritePos({ 1280 - wallTextureRight.getSpriteDimensions().w, wallTextureTop.getSpriteDimensions().h + i*wallTextureRight.getSpriteDimensions().h });
+			wallTextureRight.render(theRenderer, &wallTextureRight.getSpriteDimensions(), &wallTextureRight.getSpritePos(), wallTextureRight.getSpriteRotAngle(), &wallTextureRight.getSpriteCentre(), wallTextureRight.getSpriteScale());
+		}
 
-	// Render the Title
-	cTexture* tempTextTexture = theTextureMgr->getTexture("Lifes");
-	SDL_Rect pos = { 0, 4, tempTextTexture->getTextureRect().w, tempTextTexture->getTextureRect().h };
-	FPoint scale = { 1, 1 };
-	tempTextTexture->renderTexture(theRenderer, tempTextTexture->getTexture(), &tempTextTexture->getTextureRect(), &pos, scale);
-	// Render updated score value
+		// some kind of weird stuff ????
+		for (int i = 0; i < lifesLeft; i++)
+		{
+			lifeTexture.setSpritePos({ lifeTexture.getSpriteDimensions().w + i * lifeTexture.getSpriteDimensions().w, lifeTexture.getSpriteDimensions().h });
+			lifeTexture.render(theRenderer, &lifeTexture.getSpriteDimensions(), &lifeTexture.getSpritePos(), lifeTexture.getSpriteRotAngle(), &lifeTexture.getSpriteCentre(), lifeTexture.getSpriteScale());
+		}
 	
-	// Lab 7 code goes here
-	cTexture* tempTextTexture2 = theTextureMgr->getTexture("Time");
-	SDL_Rect pos3 = { (1280 / 2) - (tempTextTexture2->getTextureRect().w / 2), 4, tempTextTexture2->getTextureRect().w, tempTextTexture2->getTextureRect().h };
-	FPoint scale3 = { 1, 1 };
-	tempTextTexture2->renderTexture(theRenderer, tempTextTexture2->getTexture(), &tempTextTexture2->getTextureRect(), &pos3, scale3);
-	theTextureMgr->addTexture("Time", theFontMgr->getFont("Main")->createTextTexture(theRenderer, gameTextList[2], textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
+		// Create top wall
+		for (int i = 0; i < wallNumberTop; i++)
+		{
+			wallTextureTop.setSpritePos({ i*wallTextureTop.getSpriteDimensions().w, 0 });
+			wallTextureTop.render(theRenderer, &wallTextureTop.getSpriteDimensions(), &wallTextureTop.getSpritePos(), wallTextureTop.getSpriteRotAngle(), &wallTextureTop.getSpriteCentre(), wallTextureTop.getSpriteScale());
+		}
 
-	cTexture* tempTextTexture3 = theTextureMgr->getTexture("theScore");
-	SDL_Rect pos2 = { 1280 - tempTextTexture3->getTextureRect().w, 4, tempTextTexture3->getTextureRect().w, tempTextTexture3->getTextureRect().h };
-	FPoint scale2 = { 1, 1 };
-	tempTextTexture3->renderTexture(theRenderer, tempTextTexture3->getTexture(), &tempTextTexture3->getTextureRect(), &pos2, scale2);
-	theTextureMgr->addTexture("theScore", theFontMgr->getFont("Main")->createTextTexture(theRenderer, strScore.c_str(), textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
+		// Render each asteroid in the vector array
+		for (int draw = 0; draw < (int)theAsteroids.size(); draw++)
+		{
+			theAsteroids[draw]->render(theRenderer, &theAsteroids[draw]->getSpriteDimensions(), &theAsteroids[draw]->getSpritePos(), theAsteroids[draw]->getSpriteRotAngle(), &theAsteroids[draw]->getSpriteCentre(), theAsteroids[draw]->getSpriteScale());
+		}
 
-	// Render the paddle
-	thePaddle.render(theRenderer, &thePaddle.getSpriteDimensions(), &thePaddle.getSpritePos(), thePaddle.getSpriteRotAngle(), &thePaddle.getSpriteCentre(), thePaddle.getSpriteScale());
+		// Render each bullet in the vector array
+		for (int draw = 0; draw < (int)theBullets.size(); draw++)
+		{
+			theBullets[draw]->render(theRenderer, &theBullets[draw]->getSpriteDimensions(), &theBullets[draw]->getSpritePos(), theBullets[draw]->getSpriteRotAngle(), &theBullets[draw]->getSpriteCentre(), theBullets[draw]->getSpriteScale());
+		}
+
+		// Render each explosion in the vector array
+		for (int draw = 0; draw < (int)theExplosions.size(); draw++)
+		{
+			theExplosions[draw]->render(theRenderer, &theExplosions[draw]->getSourceRect(), &theExplosions[draw]->getSpritePos(), theExplosions[draw]->getSpriteScale());
+		}
+	
+		// Lab 7 code goes here
+		cTexture* tempTextTexture2 = theTextureMgr->getTexture("Time");
+		SDL_Rect pos3 = { (1280 / 2) - (tempTextTexture2->getTextureRect().w / 2), 4, tempTextTexture2->getTextureRect().w, tempTextTexture2->getTextureRect().h };
+		FPoint scale3 = { 1, 1 };
+		tempTextTexture2->renderTexture(theRenderer, tempTextTexture2->getTexture(), &tempTextTexture2->getTextureRect(), &pos3, scale3);
+		theTextureMgr->addTexture("Time", theFontMgr->getFont("Main")->createTextTexture(theRenderer, gameTextList[1], textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
+
+		cTexture* tempTextTexture3 = theTextureMgr->getTexture("theScore");
+		SDL_Rect pos2 = { 1280 - tempTextTexture3->getTextureRect().w, 4, tempTextTexture3->getTextureRect().w, tempTextTexture3->getTextureRect().h };
+		FPoint scale2 = { 1, 1 };
+		tempTextTexture3->renderTexture(theRenderer, tempTextTexture3->getTexture(), &tempTextTexture3->getTextureRect(), &pos2, scale2);
+		theTextureMgr->addTexture("theScore", theFontMgr->getFont("Main")->createTextTexture(theRenderer, strScore.c_str(), textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
+
+		// Render the paddle
+		thePaddle.render(theRenderer, &thePaddle.getSpriteDimensions(), &thePaddle.getSpritePos(), thePaddle.getSpriteRotAngle(), &thePaddle.getSpriteCentre(), thePaddle.getSpriteScale());
+		SDL_RenderPresent(theRenderer);
+	}break;
+	case gameState::end:
+	{
+		// End menu background
+		spriteBkgd.render(theRenderer, NULL, NULL, spriteBkgd.getSpriteScale());
+		
+		// Title
+		cTexture* tempTextTexture = theTextureMgr->getTexture("Title");
+		SDL_Rect pos = { (1280 / 2) - (tempTextTexture->getTextureRect().w / 2), 4, tempTextTexture->getTextureRect().w, tempTextTexture->getTextureRect().h * 2 };
+		FPoint scale = { 1, 1 };
+		tempTextTexture->renderTexture(theRenderer, tempTextTexture->getTexture(), &tempTextTexture->getTextureRect(), &pos, scale);
+
+		// Objective
+		tempTextTexture = theTextureMgr->getTexture("Leaderboard");
+		pos = { (1280 / 2) - (tempTextTexture->getTextureRect().w / 2), 4, tempTextTexture->getTextureRect().w, tempTextTexture->getTextureRect().h * 4 };
+		scale = { 1 , 1 };
+		tempTextTexture->renderTexture(theRenderer, tempTextTexture->getTexture(), &tempTextTexture->getTextureRect(), &pos, scale);
+
+		// Instructions
+		tempTextTexture = theTextureMgr->getTexture("PlayerScore");
+		pos = { (1280 / 2) - (tempTextTexture->getTextureRect().w / 2), 4, tempTextTexture->getTextureRect().w, tempTextTexture->getTextureRect().h * 6 };
+		tempTextTexture->renderTexture(theRenderer, tempTextTexture->getTexture(), &tempTextTexture->getTextureRect(), &pos, scale);
+
+		/* BUTTONS TO ADD
+		theButtonMgr->getBtn("playAgain_btn")->setSpritePos({ 400, 375 });
+		theButtonMgr->getBtn("playAgain_btn")->render(theRenderer, &theButtonMgr->getBtn("play_btn")->getSpriteDimensions(), &theButtonMgr->getBtn("play_btn")->getSpritePos(), theButtonMgr->getBtn("play_btn")->getSpriteScale());
+		theButtonMgr->getBtn("menu_btn")->setSpritePos({ 400, 375 });
+		theButtonMgr->getBtn("menu_btn")->render(theRenderer, &theButtonMgr->getBtn("play_btn")->getSpriteDimensions(), &theButtonMgr->getBtn("play_btn")->getSpritePos(), theButtonMgr->getBtn("play_btn")->getSpriteScale());
+		theButtonMgr->getBtn("exit_btn")->setSpritePos({ 400, 375 });
+		theButtonMgr->getBtn("exit_btn")->render(theRenderer, &theButtonMgr->getBtn("exit_btn")->getSpriteDimensions(), &theButtonMgr->getBtn("exit_btn")->getSpritePos(), theButtonMgr->getBtn("exit_btn")->getSpriteScale());
+		*/
+	}break;
+	case gameState::quit:
+	{
+		loop = false;
+	}break;
+	default:
+		break;
+	}
 	SDL_RenderPresent(theRenderer);
 }
 
@@ -426,14 +589,11 @@ void cGame::update(double deltaTime)
 					} else if ((*asteroidIterator)->health == 1)
 					{
 						(*asteroidIterator)->setTexture(theTextureMgr->getTexture("brick_red_dmg3"));
-					}
-
-					//int textureToLoad = 4 - (*asteroidIterator)->health;
-					//(*asteroidIterator)->setTexture(theTextureMgr->getTexture("brick_red_dmg" + to_string(textureToLoad)));
-					//(*asteroidIterator)->setSpriteDimensions(theTextureMgr->getTexture("brick_red_dmg" + textureToLoad)->getTWidth(), theTextureMgr->getTexture("brick_red_dmg" + textureToLoad)->getTHeight());
-					//(*asteroidIterator)->setSpritePos({ (*asteroidIterator)->getSpritePos().x, (*asteroidIterator)->getSpritePos().y });
+					} else if ((*asteroidIterator)->health == 0)
+						theScore += 100;
 				}
 
+				// if brick is orange
 				if ((*asteroidIterator)->colour == "orange")
 				{
 					if ((*asteroidIterator)->health == 2)
@@ -443,22 +603,37 @@ void cGame::update(double deltaTime)
 					else if ((*asteroidIterator)->health == 1)
 					{
 						(*asteroidIterator)->setTexture(theTextureMgr->getTexture("brick_orange_dmg2"));
-					}
+					} else if ((*asteroidIterator)->health == 0)
+						theScore += 50;
 				}
 
+				// if brick is green
 				if ((*asteroidIterator)->colour == "green")
 				{
 					if ((*asteroidIterator)->health == 1)
 					{
 						(*asteroidIterator)->setTexture(theTextureMgr->getTexture("brick_green_dmg1"));
-					}
+					} else if ((*asteroidIterator)->health == 0)
+						theScore += 25;
 				}
 
+				// if brick is white
+				if ((*asteroidIterator)->colour == "white")
+				{
+					if ((*asteroidIterator)->health == 0)
+						theScore += 10;
+				}
 
-
-				if((*asteroidIterator)->health == 0)
+				if ((*asteroidIterator)->health == 0)
+				{
 					(*asteroidIterator)->setActive(false);
+					theTextureMgr->deleteTexture("theScore");
+					strScore = "Score: ";
+					strScore += to_string(theScore).c_str();
+					theTextureMgr->addTexture("theScore", theFontMgr->getFont("Main")->createTextTexture(theRend, strScore.c_str(), textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
+				}
 
+				// console view of health
 				cout << (*asteroidIterator)->health << endl;
 
 				theExplosions.push_back(new cSprite);
@@ -471,13 +646,6 @@ void cGame::update(double deltaTime)
 				theExplosions[index]->setSpritePos({ (*asteroidIterator)->getSpritePos().x + (int)((*asteroidIterator)->getSpritePos().w/2), (*asteroidIterator)->getSpritePos().y + (int)((*asteroidIterator)->getSpritePos().h / 2) });
 
 				theSoundMgr->getSnd("pick_up_sound")->play(0);
-				
-				// Lab 7 code goes here
-				theTextureMgr->deleteTexture("theScore");
-				theScore += 100;
-				strScore = "Score: ";
-				strScore += to_string(theScore).c_str();
-				theTextureMgr->addTexture("theScore", theFontMgr->getFont("Main")->createTextTexture(theRend, strScore.c_str(), textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));		
 			}
 		}
 
@@ -487,7 +655,21 @@ void cGame::update(double deltaTime)
 			(*bulletIterartor)->bulletDirectionY = 1;
 		}
 	}
+	
+	timePassed += deltaTime;
+	//cout << (int)timePassed << endl;
 
+	/*
+	timeLeft -= timePassed;
+	cout << timeLeft << endl;
+	*/
+
+	// Update timer
+	/*theTextureMgr->deleteTexture("Time");
+	stringTime = "Time: ";
+	stringTime += to_string((int)timePassed).c_str();
+	theTextureMgr->addTexture("Time", theFontMgr->getFont("Main")->createTextTexture(theRend, stringTime.c_str(), textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
+	*/
 	// Update the paddle's position
 	thePaddle.update(deltaTime);
 }

@@ -5,6 +5,7 @@ cRocket.cpp
 =================
 */
 #include "cRocket.h"
+#include <XInput.h>
 
 /*
 =================================================================
@@ -22,10 +23,21 @@ Update the sprite position
 */
 
 SDL_Event event;
+//XINPUT_STATE state;
+//XINPUT_GAMEPAD gamepad;
 
 void cRocket::update(double deltaTime)
 {
 	const Uint8* keystate = SDL_GetKeyboardState(NULL);
+
+	//cout << XInputGetState(XINPUT_GAMEPAD_LEFT_THUMB, ) << endl;
+
+	//cout << state.Gamepad.sThumbLX << endl;
+
+	/*if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0)
+	{
+		cout << "moved left" << endl;
+	}*/
 
 	if (keystate[SDL_SCANCODE_LEFT] || keystate[SDL_SCANCODE_A])
 	{
@@ -72,6 +84,7 @@ void cRocket::update(double deltaTime)
 
 	this->setSpritePos({ currentSpritePos.x , currentSpritePos.y  });
 	this->setBoundingRect(this->getSpritePos());
+
 }
 /*
 =================================================================

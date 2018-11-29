@@ -12,7 +12,6 @@ cGame.h
 // Game specific includes
 #include "asteroidsGame.h"
 
-
 using namespace std;
 
 class cGame
@@ -39,12 +38,15 @@ private:
 	time_point< high_resolution_clock > m_lastTime;
 	time_point< high_resolution_clock > m_CurrentTime;
 	duration< double > deltaTime;
+	bool loop = false;
 
 	// Sprites for displaying background and rocket textures
 	cSprite spriteBkgd;
 	cSprite wallTextureTop;
 	cSprite wallTextureLeft;
 	cSprite wallTextureRight;
+	cSprite lifeTexture;
+	vector<cSprite> vecLifesLeft;
 	cRocket thePaddle;
 	cAsteroid theAsteroid;
 	cBullet theBullet;
@@ -71,6 +73,7 @@ private:
 	string strScore;
 	int wallNumberTop;
 	int wallNumberSide;
+	gameState theGameState;
 };
 
 #endif
