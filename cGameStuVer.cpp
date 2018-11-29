@@ -61,7 +61,7 @@ void cGame::initialise(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 
 	// Store the textures
 	textureName = { "background", "paddle_s", "paddle_m", "paddle_l", // background and paddles - 4
-					"brick_black", "brick_white", "brick_green", "brick_green_dmg1", "brick_orange", "brick_orange_dmg1", "brick_green_dmg2", "brick_red", "brick_red_dmg1", "brick_red_dmg2", "brick_red_dmg3", // bricks - 11
+					"brick_black", "brick_white", "brick_green", "brick_green_dmg1", "brick_orange", "brick_orange_dmg1", "brick_orange_dmg2", "brick_red", "brick_red_dmg1", "brick_red_dmg2", "brick_red_dmg3", // bricks - 11
 					"pick_up_effect", "ball", "bonus_balls", "bonus_bigger", "bonus_score", "bonus_smaller", "bonus_speed", "bonus_time", // pick ups - 8
 					"life", "score", "time", "wall_left", "wall_right", "wall_up" }; // additional - 6
 	texturesToUse = { "Images\\Bkg\\Background1280x1280.jpg", "Images\\Sprites\\paddle_s.png", "Images\\Sprites\\paddle_m.png", "Images\\Sprites\\paddle_l.png", // background and paddles - 4
@@ -120,6 +120,7 @@ void cGame::initialise(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 	wallTextureTop.setSpriteDimensions(theTextureMgr->getTexture("wall_up")->getTWidth(), theTextureMgr->getTexture("wall_up")->getTHeight());
 	
 	// Create vector array of textures
+	/*
 	for (int astro = 0; astro < 10; astro++)
 	{
 		theAsteroids.push_back(new cAsteroid);
@@ -130,8 +131,126 @@ void cGame::initialise(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 		theAsteroids[astro]->setSpriteDimensions(theTextureMgr->getTexture(textureName[randAsteroid])->getTWidth(), theTextureMgr->getTexture(textureName[randAsteroid])->getTHeight());
 		theAsteroids[astro]->setAsteroidVelocity(200);
 		theAsteroids[astro]->setActive(true);
-	}
+	}*/
 
+
+	// FIRST LEVEL DESIGN //
+	int brickCount = 0;
+	/*
+	// The layout of the bricks will be 16 columns (X), 8 rows (Y).
+	for (int x = 0; x < 16; x++)
+	{
+		for (int y = 0; y < 8; y++)
+		{
+			theAsteroids.push_back(new cAsteroid);
+
+			// all bricks have same dimensions
+			int tempDimensionW = theTextureMgr->getTexture("brick_white")->getTWidth();
+			int tempDimensionH = theTextureMgr->getTexture("brick_white")->getTHeight();
+
+			// first two rows are red
+			if (y < 2)
+			{
+				theAsteroids[brickCount]->setTexture(theTextureMgr->getTexture("brick_red"));
+				theAsteroids[brickCount]->health = 4;
+				theAsteroids[brickCount]->colour = "red";
+			}
+
+			// next two rows are orange
+			if (y < 4 && y >= 2)
+			{
+				theAsteroids[brickCount]->setTexture(theTextureMgr->getTexture("brick_orange"));
+				theAsteroids[brickCount]->health = 3;
+				theAsteroids[brickCount]->colour = "orange";
+			}
+
+			// next two rows are green
+			if (y < 6 && y >= 4)
+			{
+				theAsteroids[brickCount]->setTexture(theTextureMgr->getTexture("brick_green"));
+				theAsteroids[brickCount]->health = 2;
+				theAsteroids[brickCount]->colour = "green";
+			}
+
+			// and last two rows (closest to player) are white
+			if (y < 8 && y >= 6)
+			{
+				theAsteroids[brickCount]->setTexture(theTextureMgr->getTexture("brick_white"));
+				theAsteroids[brickCount]->health = 1;
+				theAsteroids[brickCount]->colour = "white";
+			}
+
+			theAsteroids[brickCount]->setSpriteDimensions(tempDimensionW, tempDimensionH);
+			theAsteroids[brickCount]->setSpritePos({ wallTextureLeft.getSpriteDimensions().w + (int)(tempDimensionW * x)  , wallTextureTop.getSpriteDimensions().h + (int)(tempDimensionH * y) });
+			theAsteroids[brickCount]->setActive(true);
+			brickCount++;
+		}
+	}
+	*/
+	/*
+	// SECOND LEVEL DESIGN
+	for (int x = 0; x < 16; x++)
+	{
+		for (int y = 0; y < 10; y++)
+		{
+			theAsteroids.push_back(new cAsteroid);
+
+			// all bricks have same dimensions
+			int tempDimensionW = theTextureMgr->getTexture("brick_white")->getTWidth();
+			int tempDimensionH = theTextureMgr->getTexture("brick_white")->getTHeight();
+			
+			// first brick border is white (all bricks that touch the wall are white)
+			//if (y == 0 || y == 9 || x == 0 || x == 15)
+			if (y == 0 || y == 9)
+			{
+				theAsteroids[brickCount]->setTexture(theTextureMgr->getTexture("brick_white"));
+				theAsteroids[brickCount]->health = 1;
+				theAsteroids[brickCount]->colour = "white";
+			}
+
+			// inner bricks are green
+			//if (y == 1 && x > 0 && x < 15 || y == 8 && x > 0 && x < 15)
+			if (y == 1 || y == 8)
+			{
+				theAsteroids[brickCount]->setTexture(theTextureMgr->getTexture("brick_green"));
+				theAsteroids[brickCount]->health = 2;
+				theAsteroids[brickCount]->colour = "green";
+			}
+
+			// another inner row is orange
+			//if (y == 2 && x > 1 && x < 14 || y == 7 && x > 1 && x < 14)
+			if (y == 2 || y == 7)
+			{
+				theAsteroids[brickCount]->setTexture(theTextureMgr->getTexture("brick_orange"));
+				theAsteroids[brickCount]->health = 3;
+				theAsteroids[brickCount]->colour = "orange";
+			}
+
+			// another inner row is orange
+			//if (y == 3 && x > 2 && x < 13 || y == 6 && x > 2 && x < 13)
+			if (y == 3 || y == 6)
+			{
+				theAsteroids[brickCount]->setTexture(theTextureMgr->getTexture("brick_red"));
+				theAsteroids[brickCount]->health = 4;
+				theAsteroids[brickCount]->colour = "red";
+			}
+
+			// another inner row is orange
+			//if (y == 3 && x > 2 && x < 13 || y == 6 && x > 2 && x < 13)
+			if (y == 4 || y == 5)
+			{
+				theAsteroids[brickCount]->setTexture(theTextureMgr->getTexture("brick_black"));
+				theAsteroids[brickCount]->health = 0;
+				theAsteroids[brickCount]->colour = "black";
+			}
+
+			theAsteroids[brickCount]->setSpriteDimensions(tempDimensionW, tempDimensionH);
+			theAsteroids[brickCount]->setSpritePos({ wallTextureLeft.getSpriteDimensions().w + (int)(tempDimensionW * x)  , wallTextureTop.getSpriteDimensions().h + (int)(tempDimensionH * y) });
+			theAsteroids[brickCount]->setActive(true);
+			brickCount++;
+		}
+	}
+	*/
 	// calculating how many wall textures fit in screen
 	wallNumberTop = (int)(1280 / wallTextureTop.getSpriteDimensions().w) + 1;
 	wallNumberSide = (int)(1280 / wallTextureLeft.getSpriteDimensions().h);
@@ -172,7 +291,7 @@ void cGame::render(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 		wallTextureRight.render(theRenderer, &wallTextureRight.getSpriteDimensions(), &wallTextureRight.getSpritePos(), wallTextureRight.getSpriteRotAngle(), &wallTextureRight.getSpriteCentre(), wallTextureRight.getSpriteScale());
 	}
 
-	// Create up wall
+	// Create top wall
 	for (int i = 0; i < wallNumberTop; i++)
 	{
 		wallTextureTop.setSpritePos({ i*wallTextureTop.getSpriteDimensions().w, 0 });
@@ -184,37 +303,40 @@ void cGame::render(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 	{
 		theAsteroids[draw]->render(theRenderer, &theAsteroids[draw]->getSpriteDimensions(), &theAsteroids[draw]->getSpritePos(), theAsteroids[draw]->getSpriteRotAngle(), &theAsteroids[draw]->getSpriteCentre(), theAsteroids[draw]->getSpriteScale());
 	}
+
 	// Render each bullet in the vector array
 	for (int draw = 0; draw < (int)theBullets.size(); draw++)
 	{
 		theBullets[draw]->render(theRenderer, &theBullets[draw]->getSpriteDimensions(), &theBullets[draw]->getSpritePos(), theBullets[draw]->getSpriteRotAngle(), &theBullets[draw]->getSpriteCentre(), theBullets[draw]->getSpriteScale());
 	}
+
 	// Render each explosion in the vector array
 	for (int draw = 0; draw < (int)theExplosions.size(); draw++)
 	{
 		theExplosions[draw]->render(theRenderer, &theExplosions[draw]->getSourceRect(), &theExplosions[draw]->getSpritePos(), theExplosions[draw]->getSpriteScale());
 	}
+
 	// Render the Title
 	cTexture* tempTextTexture = theTextureMgr->getTexture("Lifes");
-	SDL_Rect pos = { 0, 10, tempTextTexture->getTextureRect().w, tempTextTexture->getTextureRect().h };
+	SDL_Rect pos = { 0, 4, tempTextTexture->getTextureRect().w, tempTextTexture->getTextureRect().h };
 	FPoint scale = { 1, 1 };
 	tempTextTexture->renderTexture(theRenderer, tempTextTexture->getTexture(), &tempTextTexture->getTextureRect(), &pos, scale);
 	// Render updated score value
 	
 	// Lab 7 code goes here
 	cTexture* tempTextTexture2 = theTextureMgr->getTexture("Time");
-	SDL_Rect pos3 = { (1000 / 2) - (tempTextTexture2->getTextureRect().w / 2), 10, tempTextTexture2->getTextureRect().w, tempTextTexture2->getTextureRect().h };
+	SDL_Rect pos3 = { (1280 / 2) - (tempTextTexture2->getTextureRect().w / 2), 4, tempTextTexture2->getTextureRect().w, tempTextTexture2->getTextureRect().h };
 	FPoint scale3 = { 1, 1 };
 	tempTextTexture2->renderTexture(theRenderer, tempTextTexture2->getTexture(), &tempTextTexture2->getTextureRect(), &pos3, scale3);
 	theTextureMgr->addTexture("Time", theFontMgr->getFont("Main")->createTextTexture(theRenderer, gameTextList[2], textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
 
 	cTexture* tempTextTexture3 = theTextureMgr->getTexture("theScore");
-	SDL_Rect pos2 = { 1280 - tempTextTexture3->getTextureRect().w, 10, tempTextTexture3->getTextureRect().w, tempTextTexture3->getTextureRect().h };
+	SDL_Rect pos2 = { 1280 - tempTextTexture3->getTextureRect().w, 4, tempTextTexture3->getTextureRect().w, tempTextTexture3->getTextureRect().h };
 	FPoint scale2 = { 1, 1 };
 	tempTextTexture3->renderTexture(theRenderer, tempTextTexture3->getTexture(), &tempTextTexture3->getTextureRect(), &pos2, scale2);
 	theTextureMgr->addTexture("theScore", theFontMgr->getFont("Main")->createTextTexture(theRenderer, strScore.c_str(), textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
 
-	// render the paddle
+	// Render the paddle
 	thePaddle.render(theRenderer, &thePaddle.getSpriteDimensions(), &thePaddle.getSpritePos(), thePaddle.getSpriteRotAngle(), &thePaddle.getSpriteCentre(), thePaddle.getSpriteScale());
 	SDL_RenderPresent(theRenderer);
 }
@@ -245,6 +367,7 @@ void cGame::update(double deltaTime)
 			++asteroidIterator;
 		}
 	}
+
 	// Update the visibility and position of each bullet
 	vector<cBullet*>::iterator bulletIterartor = theBullets.begin();
 	while (bulletIterartor != theBullets.end())
@@ -259,6 +382,7 @@ void cGame::update(double deltaTime)
 			++bulletIterartor;
 		}
 	}
+
 	// Update the visibility and position of each explosion
 	vector<cSprite*>::iterator expIterartor = theExplosions.begin();
 	while (expIterartor != theExplosions.end())
@@ -281,15 +405,62 @@ void cGame::update(double deltaTime)
 	*/
 	for (vector<cBullet*>::iterator bulletIterartor = theBullets.begin(); bulletIterartor != theBullets.end(); ++bulletIterartor)
 	{
-		//(*bulletIterartor)->update(deltaTime);
-		
 		(*bulletIterartor)->update(deltaTime);
+
 		for (vector<cAsteroid*>::iterator asteroidIterator = theAsteroids.begin(); asteroidIterator != theAsteroids.end(); ++asteroidIterator)
 		{
 			if ((*asteroidIterator)->collidedWith(&(*asteroidIterator)->getBoundingRect(), &(*bulletIterartor)->getBoundingRect()))
 			{
-				// if a collision set the bullet and asteroid to false
-				(*asteroidIterator)->setActive(false);
+				(*asteroidIterator)->health--;
+				(*bulletIterartor)->bulletDirectionY *= -1;
+
+				// if brick is red
+				if ((*asteroidIterator)->colour == "red")
+				{
+					if ((*asteroidIterator)->health == 3)
+					{
+						(*asteroidIterator)->setTexture(theTextureMgr->getTexture("brick_red_dmg1"));
+					} else if ((*asteroidIterator)->health == 2)
+					{
+						(*asteroidIterator)->setTexture(theTextureMgr->getTexture("brick_red_dmg2"));
+					} else if ((*asteroidIterator)->health == 1)
+					{
+						(*asteroidIterator)->setTexture(theTextureMgr->getTexture("brick_red_dmg3"));
+					}
+
+					//int textureToLoad = 4 - (*asteroidIterator)->health;
+					//(*asteroidIterator)->setTexture(theTextureMgr->getTexture("brick_red_dmg" + to_string(textureToLoad)));
+					//(*asteroidIterator)->setSpriteDimensions(theTextureMgr->getTexture("brick_red_dmg" + textureToLoad)->getTWidth(), theTextureMgr->getTexture("brick_red_dmg" + textureToLoad)->getTHeight());
+					//(*asteroidIterator)->setSpritePos({ (*asteroidIterator)->getSpritePos().x, (*asteroidIterator)->getSpritePos().y });
+				}
+
+				if ((*asteroidIterator)->colour == "orange")
+				{
+					if ((*asteroidIterator)->health == 2)
+					{
+						(*asteroidIterator)->setTexture(theTextureMgr->getTexture("brick_orange_dmg1"));
+					}
+					else if ((*asteroidIterator)->health == 1)
+					{
+						(*asteroidIterator)->setTexture(theTextureMgr->getTexture("brick_orange_dmg2"));
+					}
+				}
+
+				if ((*asteroidIterator)->colour == "green")
+				{
+					if ((*asteroidIterator)->health == 1)
+					{
+						(*asteroidIterator)->setTexture(theTextureMgr->getTexture("brick_green_dmg1"));
+					}
+				}
+
+
+
+				if((*asteroidIterator)->health == 0)
+					(*asteroidIterator)->setActive(false);
+
+				cout << (*asteroidIterator)->health << endl;
+
 				theExplosions.push_back(new cSprite);
 				int index = theExplosions.size()-1;
 				theExplosions[index]->setSpriteTranslation({ 0, 0 });
@@ -310,6 +481,7 @@ void cGame::update(double deltaTime)
 			}
 		}
 
+		// when bullet collides with the platform
 		if ((*bulletIterartor)->collidedWith(&(thePaddle).getBoundingRect(), &(*bulletIterartor)->getBoundingRect()))
 		{
 			(*bulletIterartor)->bulletDirectionY = 1;
@@ -347,10 +519,10 @@ bool cGame::getInput(bool theLoop)
 					theBullets[numBullets]->setSpriteTranslation({ 50, 50 });
 					theBullets[numBullets]->setTexture(theTextureMgr->getTexture("ball"));
 					theBullets[numBullets]->setSpriteDimensions(theTextureMgr->getTexture("ball")->getTWidth(), theTextureMgr->getTexture("ball")->getTHeight());
-					theBullets[numBullets]->setBulletVelocity(10);
+					theBullets[numBullets]->setBulletVelocity(5);
 					// passing walls' dimensions to cBulletStuVer
 					theBullets[numBullets]->setMovingPoints(wallTextureLeft.getSpriteDimensions().w, wallTextureTop.getSpriteDimensions().h);
-					theBullets[numBullets]->setSpriteRotAngle(50);
+					theBullets[numBullets]->setSpriteRotAngle(-50);
 					theBullets[numBullets]->setActive(true);
 					cout << "Bullet added to Vector at position - x: " << thePaddle.getBoundingRect().x << " y: " << thePaddle.getBoundingRect().y << endl;
 				}

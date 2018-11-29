@@ -23,3 +23,19 @@ cRocket:
 
 cBulletStuVer, cBullet:
 - added the walls' dimensions to the file so that the ball can bounce from it
+
+28/11
+cGameStuVer:
+- designed the first level, bricks dont fly anymore
+- bricks have health points and when it reaches 0 they vanish
+- bricks change texture when getting damaged 
+- added damaged bricks textures
+- added bug with brick_orange_dmg2 texture
+- fixed the added bug with the texture :)
+
+Brick images:
+- changed width to 75 pixels
+
+Wall images: 
+- changed width to 40 pixels (right and left walls)
+- changed height to 40 pixels (top wall)

@@ -39,23 +39,22 @@ void cBullet::update(double deltaTime)
 
 	//cout << currentSpritePos.y << endl;
 
-
-	// GOING UP dividing the ball's height gave the best and most accurate bounce effect (it bounced right of the wall when it touched it and not from the centre or any other point)
-	if (currentSpritePos.y < 0 + wallHeight + (this->getSpriteDimensions().h / 2))
+	// GOING UP 
+	if (currentSpritePos.y < 0 + wallHeight)
 	{
-		bulletDirectionY = -1;
+		bulletDirectionY *= -1;
 	}
 
 	// GOING LEFT
-	if (currentSpritePos.x < 0 + wallWidth + (this->getSpriteDimensions().w / 2))
+	if (currentSpritePos.x < 0 + wallWidth)
 	{
-		bulletDirectionX = 1;
+		bulletDirectionX *= -1;
 	}
 
-	// GOING RIGHT
+	// GOING RIGHT dividing the ball's height gave the best and most accurate bounce effect (it bounced right of the wall when it touched it and not from the centre or any other point)
 	if (currentSpritePos.x > 1280 - wallWidth - (this->getSpriteDimensions().w))
 	{
-		bulletDirectionX = -1;
+		bulletDirectionX *= -1;
 	}
 
 	this->setSpritePos({ currentSpritePos.x, currentSpritePos.y });
