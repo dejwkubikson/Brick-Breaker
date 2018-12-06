@@ -46,7 +46,6 @@ private:
 	cSprite wallTextureLeft;
 	cSprite wallTextureRight;
 	cSprite lifeTexture;
-	vector<cSprite> vecLifesLeft;
 	cRocket thePaddle;
 	cAsteroid theAsteroid;
 	cBullet theBullet;
@@ -57,6 +56,7 @@ private:
 	vector<cAsteroid*> theAsteroids;
 	vector<cBullet*> theBullets;
 	vector<cSprite*> theExplosions;
+	vector<cSprite> vecLifesLeft;
 	// Fonts to use
 	vector<LPCSTR> fontList;
 	vector<LPCSTR> fontsToUse;
@@ -66,6 +66,12 @@ private:
 	vector<LPCSTR> soundList;
 	vector<soundType> soundTypes;
 	vector<LPCSTR> soundsToUse;
+	// Create vector array of button textures
+	vector<LPCSTR> btnNameList;
+	vector<LPCSTR> btnTexturesToUse;
+	vector<SDL_Point> btnPos;
+	vector <cButton> theButtons;
+	btnTypes theBtnType;
 	// Game objects
 	// Define the elements and there position in/on the array/map
 	int renderWidth, renderHeight;
@@ -74,6 +80,7 @@ private:
 	int wallNumberTop;
 	int wallNumberSide;
 	gameState theGameState;
+	SDL_Point theAreaClicked;
 };
 
 #endif

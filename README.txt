@@ -52,3 +52,17 @@ cGameStuVer:
 - added main and end menu
 - added text to main and end menu
 - started adding buttons
+
+6/12
+Game rules now change, the quicker the player finishes the more points he gets (the player doesn't lose when the time runs out), for every lost life his points are taken.
+
+cGameStuVer:
+- limited the amount of balls at once (1)
+- added lifes (max of 3)
+- lifes can be lost now
+- player will be notified to press 'space' to shoot the ball out
+- added sound when player loses life
+- added sound when ball hits the walls
+- implemented menu, level, and end screen
+- added a new hit effect
+- implemented new sounds

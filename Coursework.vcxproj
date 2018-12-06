@@ -23,6 +23,8 @@
     <ClInclude Include="cAsteroid.h" />
     <ClInclude Include="cBkGround.h" />
     <ClInclude Include="cBullet.h" />
+    <ClInclude Include="cButton.h" />
+    <ClInclude Include="cButtonMgr.h" />
     <ClInclude Include="cFont.h" />
     <ClInclude Include="cFontMgr.h" />
     <ClInclude Include="cGame.h" />
@@ -34,12 +36,15 @@
     <ClInclude Include="cTexture.h" />
     <ClInclude Include="cTextureMgr.h" />
     <ClInclude Include="GameConstants.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AsteroidsSDL.cpp" />
     <ClCompile Include="cAsteroid.cpp" />
     <ClCompile Include="cBkGround.cpp" />
     <ClCompile Include="cBulletStuVer.cpp" />
+    <ClCompile Include="cButton.cpp" />
+    <ClCompile Include="cButtonMgr.cpp" />
     <ClCompile Include="cFont.cpp" />
     <ClCompile Include="cFontMgr.cpp" />
     <ClCompile Include="cGameStuVer.cpp" />
@@ -50,6 +55,9 @@
     <ClCompile Include="cSprite.cpp" />
     <ClCompile Include="cTexture.cpp" />
     <ClCompile Include="cTextureMgr.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Coursework.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -113,7 +121,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\Users\dawid\Desktop\Courseworks\Programming\Paddle Game\Coursework\Coursework\SDL2\SDL2-2.0.4\lib\x86;C:\Users\dawid\Desktop\Courseworks\Programming\Paddle Game\Coursework\Coursework\SDL2\SDL2_image-2.0.1\lib\x86;C:\Users\dawid\Desktop\Courseworks\Programming\Paddle Game\Coursework\Coursework\SDL2\SDL2_mixer-2.0.1\lib\x86;C:\Users\dawid\Desktop\Courseworks\Programming\Paddle Game\Coursework\Coursework\SDL2\SDL2_ttf-2.0.14\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_mixer.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_mixer.lib;SDL2_ttf.lib;XINPUT9_1_0.LIB;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
@@ -150,7 +158,7 @@ xcopy /Y "SDL2\SDL2_mixer-2.0.1\lib\x86\*.dll" "$(OutDir)"</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>C:\Users\dawid\Desktop\Courseworks\Programming\Paddle Game\Coursework\Coursework\SDL2\SDL2-2.0.4\lib\x86;C:\Users\dawid\Desktop\Courseworks\Programming\Paddle Game\Coursework\Coursework\SDL2\SDL2_image-2.0.1\lib\x86;C:\Users\dawid\Desktop\Courseworks\Programming\Paddle Game\Coursework\Coursework\SDL2\SDL2_mixer-2.0.1\lib\x86;C:\Users\dawid\Desktop\Courseworks\Programming\Paddle Game\Coursework\Coursework\SDL2\SDL2_ttf-2.0.14\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_mixer.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_mixer.lib;SDL2_ttf.lib;XINPUT9_1_0.LIB;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
     </Link>
     <PostBuildEvent>
