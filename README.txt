@@ -66,3 +66,17 @@ cGameStuVer:
 - implemented menu, level, and end screen
 - added a new hit effect
 - implemented new sounds
+
+7/12
+Project:
+- added highscore cpp and header files
+
+cGameStuVer:
+- added highscore display at the end of game
+
+8/12 
+cHighScoreTalbe:
+- changed nearly the entire file to suit own needs
+
+cGameStuVer:
+- added a highscore at the end screen

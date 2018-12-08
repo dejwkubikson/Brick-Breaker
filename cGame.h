@@ -29,6 +29,8 @@ public:
 	bool getInput(bool theLoop);
 	double getElapsedSeconds();
 
+	void createLevel1();
+
 	static cGame* getInstance();
 
 private:
@@ -81,6 +83,11 @@ private:
 	int wallNumberSide;
 	gameState theGameState;
 	SDL_Point theAreaClicked;
+	cHighScoreTable theHSTable;
+	int numTableItems;
+	string theHeighScoreTable;
+	int theHSTableSize;
+	vector<LPCSTR> highScoreTextures;
 };
 
 #endif
