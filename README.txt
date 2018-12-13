@@ -80,3 +80,14 @@ cHighScoreTalbe:
 
 cGameStuVer:
 - added a highscore at the end screen
+
+9/12
+Created cController cpp and header files to implement control by gamepad
+
+cRocket:
+- added XInput
+- added controls to support gamepad (moving with left stick)
+
+cGameStuVer:
+- added controls to shoot the ball at the start of the game with the gamepad's 'A' button
+- game ends now when user loses his lifes

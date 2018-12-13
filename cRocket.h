@@ -8,13 +8,14 @@ cRocket.h
 #ifndef _CROCKET_H
 #define _CROCKET_H
 #include "cSprite.h"
+#include "cController.h"
 
 class cRocket : public cSprite
 {
 private:
 	int rocketVelocity;
 	int move;
-	int rocketMaxSpeed = 0;
+	int rocketMaxSpeed = 700;
 	int rocketAcceleration = 5;
 	int rocketDecceleration = 20;
 	int wallWidth = 0;
@@ -30,5 +31,7 @@ public:
 	int getRocketMaxSpeed(); // Gets the rocket's max speed
 	bool stopRocket = false; // true when the movement keys are released - stops the platform
 	void setMovingWidth(int wallSizeW); // sets the moving width - platform cannot move onto the walls on sides
+	cController theController;
+
 }; 
 #endif

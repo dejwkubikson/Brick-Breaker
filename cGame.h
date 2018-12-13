@@ -30,6 +30,7 @@ public:
 	double getElapsedSeconds();
 
 	void createLevel1();
+	void createLevel2();
 
 	static cGame* getInstance();
 
@@ -40,7 +41,7 @@ private:
 	time_point< high_resolution_clock > m_lastTime;
 	time_point< high_resolution_clock > m_CurrentTime;
 	duration< double > deltaTime;
-	bool loop = false;
+	bool loop = true;
 
 	// Sprites for displaying background and rocket textures
 	cSprite spriteBkgd;
@@ -50,6 +51,7 @@ private:
 	cSprite lifeTexture;
 	cRocket thePaddle;
 	cAsteroid theAsteroid;
+	cController theController;
 	cBullet theBullet;
 	// game related variables
 	vector<LPCSTR> textureName;
@@ -88,6 +90,7 @@ private:
 	string theHeighScoreTable;
 	int theHSTableSize;
 	vector<LPCSTR> highScoreTextures;
+	int currentLevel = 1;
 };
 
 #endif

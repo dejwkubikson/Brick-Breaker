@@ -25,9 +25,11 @@
     <ClInclude Include="cBullet.h" />
     <ClInclude Include="cButton.h" />
     <ClInclude Include="cButtonMgr.h" />
+    <ClInclude Include="cController.h" />
     <ClInclude Include="cFont.h" />
     <ClInclude Include="cFontMgr.h" />
     <ClInclude Include="cGame.h" />
+    <ClInclude Include="cHighScoreTable.h" />
     <ClInclude Include="cRocket.h" />
     <ClInclude Include="cSDL2WNDManager.h" />
     <ClInclude Include="cSound.h" />
@@ -45,9 +47,11 @@
     <ClCompile Include="cBulletStuVer.cpp" />
     <ClCompile Include="cButton.cpp" />
     <ClCompile Include="cButtonMgr.cpp" />
+    <ClCompile Include="cController.cpp" />
     <ClCompile Include="cFont.cpp" />
     <ClCompile Include="cFontMgr.cpp" />
     <ClCompile Include="cGameStuVer.cpp" />
+    <ClCompile Include="cHighScoreTable.cpp" />
     <ClCompile Include="cRocket.cpp" />
     <ClCompile Include="cSDL2WNDManager.cpp" />
     <ClCompile Include="cSound.cpp" />

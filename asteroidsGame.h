@@ -15,4 +15,5 @@
 #include "cButtonMgr.h"
 #include "cButton.h"
 #include "cHighScoreTable.h"
+#include "cController.h"
 #endif

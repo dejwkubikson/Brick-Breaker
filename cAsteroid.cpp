@@ -26,7 +26,7 @@ void cAsteroid::update(double deltaTime)
 {
 	SDL_Rect currentSpritePos = this->getSpritePos();
 
-	this->setBoundingRect(this->getSpritePos());
+	setBoundingRect(this->getSpritePos());
 }
 /*
 =================================================================

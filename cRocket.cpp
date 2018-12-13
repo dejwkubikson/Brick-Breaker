@@ -5,7 +5,6 @@ cRocket.cpp
 =================
 */
 #include "cRocket.h"
-#include <XInput.h>
 
 /*
 =================================================================
@@ -23,29 +22,45 @@ Update the sprite position
 */
 
 SDL_Event event;
-//XINPUT_STATE state;
-//XINPUT_GAMEPAD gamepad;
 
 void cRocket::update(double deltaTime)
 {
+	// If there was no error trying to get the first controller, then it is plugged in
+	/*if (dwXIndex0 == ERROR_SUCCESS) {
+
+		// Left thumbstick x-axis value. The value is between -32768 and 32767. < 0 - analog moved left / > 0 - analog moved right
+
+		// moving right
+		if (state.Gamepad.sThumbLX > 15000)
+			moveRight = true;
+		else
+			moveRight = false;
+
+		// moving left
+		if (state.Gamepad.sThumbLX < -15000) 
+			moveLeft = true;
+		else
+			moveLeft = false;
+
+		if (state.Gamepad.wButtons && XINPUT_GAMEPAD_A)
+			shootBall = true;
+		else
+			shootBall = false;
+
+		//cout << state.Gamepad.sThumbLX << endl;
+	}
+	else
+		cout << "No XBox pad detected" << endl;*/
+
 	const Uint8* keystate = SDL_GetKeyboardState(NULL);
 
-	//cout << XInputGetState(XINPUT_GAMEPAD_LEFT_THUMB, ) << endl;
-
-	//cout << state.Gamepad.sThumbLX << endl;
-
-	/*if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0)
-	{
-		cout << "moved left" << endl;
-	}*/
-
-	if (keystate[SDL_SCANCODE_LEFT] || keystate[SDL_SCANCODE_A])
+	if (keystate[SDL_SCANCODE_LEFT] || keystate[SDL_SCANCODE_A] || theController.movingLeft() == true)
 	{
 		move = -1;
 		stopRocket = false;
 	}
 	else
-		if (keystate[SDL_SCANCODE_RIGHT] || keystate[SDL_SCANCODE_D])
+		if (keystate[SDL_SCANCODE_RIGHT] || keystate[SDL_SCANCODE_D] || theController.movingRight() == true)
 		{
 			move = 1;
 			stopRocket = false;
@@ -58,8 +73,8 @@ void cRocket::update(double deltaTime)
 	if (stopRocket == false)
 	{
 		// if the rocket doesnt move we want to give it a small boost to acceleration at start
-		if (rocketVelocity < 200)
-			rocketVelocity += rocketAcceleration * 2;
+		if (rocketVelocity < 400)
+			rocketVelocity = 400;
 		else
 		rocketVelocity += rocketAcceleration;
 
