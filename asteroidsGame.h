@@ -16,4 +16,5 @@
 #include "cButton.h"
 #include "cHighScoreTable.h"
 #include "cController.h"
+#include "cPickUp.h"
 #endif

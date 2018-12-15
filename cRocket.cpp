@@ -25,33 +25,6 @@ SDL_Event event;
 
 void cRocket::update(double deltaTime)
 {
-	// If there was no error trying to get the first controller, then it is plugged in
-	/*if (dwXIndex0 == ERROR_SUCCESS) {
-
-		// Left thumbstick x-axis value. The value is between -32768 and 32767. < 0 - analog moved left / > 0 - analog moved right
-
-		// moving right
-		if (state.Gamepad.sThumbLX > 15000)
-			moveRight = true;
-		else
-			moveRight = false;
-
-		// moving left
-		if (state.Gamepad.sThumbLX < -15000) 
-			moveLeft = true;
-		else
-			moveLeft = false;
-
-		if (state.Gamepad.wButtons && XINPUT_GAMEPAD_A)
-			shootBall = true;
-		else
-			shootBall = false;
-
-		//cout << state.Gamepad.sThumbLX << endl;
-	}
-	else
-		cout << "No XBox pad detected" << endl;*/
-
 	const Uint8* keystate = SDL_GetKeyboardState(NULL);
 
 	if (keystate[SDL_SCANCODE_LEFT] || keystate[SDL_SCANCODE_A] || theController.movingLeft() == true)
@@ -99,7 +72,6 @@ void cRocket::update(double deltaTime)
 
 	this->setSpritePos({ currentSpritePos.x , currentSpritePos.y  });
 	this->setBoundingRect(this->getSpritePos());
-
 }
 /*
 =================================================================
@@ -164,3 +136,22 @@ void cRocket::setMovingWidth(int wallSizeW)
 {
 	wallWidth = wallSizeW;
 }
+/*
+================================================================ =
+Sets the paddle size
+================================================================ =
+*/
+void cRocket::setPaddleSize(int toSet)
+{
+	paddleSize = toSet;
+}
+/*
+================================================================ =
+Gets the paddle size
+================================================================ =
+*/
+int cRocket::getPaddleSize()
+{
+	return paddleSize;
+}
+

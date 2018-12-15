@@ -91,3 +91,9 @@ cRocket:
 cGameStuVer:
 - added controls to shoot the ball at the start of the game with the gamepad's 'A' button
 - game ends now when user loses his lifes
+
+10/12
+Added cPickUp cpp and header files
+
+cGameStuVer
+- added pick ups (collision, spawn, sounds)

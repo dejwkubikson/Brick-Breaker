@@ -26,6 +26,7 @@ public:
 	void render(SDL_Window* theSDLWND, SDL_Renderer* theRenderer, double rotAngle, SDL_Point* spriteCentre);
 	void update();
 	void update(double deltaTime);
+	void applyPickUpEffect(string effectToApply);
 	bool getInput(bool theLoop);
 	double getElapsedSeconds();
 
@@ -33,6 +34,9 @@ public:
 	void createLevel2();
 
 	static cGame* getInstance();
+
+	double timePassed = 0;
+	string currentBonus = "";
 
 private:
 
@@ -51,6 +55,7 @@ private:
 	cSprite lifeTexture;
 	cRocket thePaddle;
 	cAsteroid theAsteroid;
+	cPickUp thePickUp;
 	cController theController;
 	cBullet theBullet;
 	// game related variables
@@ -60,7 +65,9 @@ private:
 	vector<cAsteroid*> theAsteroids;
 	vector<cBullet*> theBullets;
 	vector<cSprite*> theExplosions;
-	vector<cSprite> vecLifesLeft;
+	vector<cSprite*> vecLifesLeft;
+	vector<cPickUp*> thePickUps;
+
 	// Fonts to use
 	vector<LPCSTR> fontList;
 	vector<LPCSTR> fontsToUse;
@@ -91,6 +98,20 @@ private:
 	int theHSTableSize;
 	vector<LPCSTR> highScoreTextures;
 	int currentLevel = 1;
+	int lifesLeft = 3;
+	string stringTime = "";
+	bool enabledSpace = true;
+	int brickCount = 0;
+	bool gameEnded = false;
+	int currentPickUp = -1;
+	double timeToPickUp = 0;
+	int numberOfPickUps = 0;
+	int checkWhichToDestroy = 0;
+	bool pickUpHit = false;
+	string currentPaddleSize = "";
+	int scoreBoost = 0;
+	int bulletsFallen = 0;
+	int bulletAmount = 0;
 };
 
 #endif

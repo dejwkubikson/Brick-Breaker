@@ -77,6 +77,7 @@ void cTextureMgr::deleteTextures()
 void cTextureMgr::deleteTexture(LPCSTR txtName)
 {
 	map<LPCSTR, cTexture*>::iterator txt = textureList.find(txtName);
+	delete txt->second;
 	this->textureList.erase(txt);
 }
 /*

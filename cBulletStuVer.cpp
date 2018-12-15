@@ -34,11 +34,6 @@ void cBullet::update(double deltaTime)
 	currentSpritePos.x += (int)(direction.X * this->bulletVelocity * this->getSpriteTranslation().x * deltaTime);
 	currentSpritePos.y += (int)(direction.Y * this->bulletVelocity * this->getSpriteTranslation().y * deltaTime);
 
-	//cout << wallHeight << endl;
-	//cout << wallWidth << endl;
-
-	//cout << currentSpritePos.y << endl;
-
 	// GOING UP 
 	if (currentSpritePos.y < 0 + wallHeight)
 	{

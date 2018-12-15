@@ -9,17 +9,9 @@ cGame* cGame::pInstance = NULL;
 static cTextureMgr* theTextureMgr = cTextureMgr::getInstance();
 static cFontMgr* theFontMgr = cFontMgr::getInstance();
 static cSoundMgr* theSoundMgr = cSoundMgr::getInstance();
-
-double timePassed = 0;
-int lifesLeft = 3;
-string stringTime = "";
-bool enabledSpace = true;
-int brickCount = 0;
-int totalBricks = 0;
-bool gameEnded = false;
+static cButtonMgr* theButtonMgr = cButtonMgr::getInstance();
 
 SDL_Renderer* theRend;
-static cButtonMgr* theButtonMgr = cButtonMgr::getInstance();
 
 /*
 =================================================================================
@@ -43,6 +35,84 @@ cGame* cGame::getInstance()
 	}
 	return cGame::pInstance;
 }
+
+void cGame::applyPickUpEffect(string effectToApply)
+{
+	if (effectToApply == "bonus_balls")
+	{
+		enabledSpace = true;
+	}
+
+	if (effectToApply == "bonus_bigger")
+	{
+		if (currentPaddleSize == "small")
+		{
+			//theTextureMgr->deleteTexture("paddle_s");
+			thePaddle.setTexture(theTextureMgr->getTexture("paddle_m"));
+			thePaddle.setSpriteDimensions(theTextureMgr->getTexture("paddle_m")->getTWidth(), theTextureMgr->getTexture("paddle_m")->getTHeight());
+			currentPaddleSize = "medium";
+		}
+
+		if (currentPaddleSize == "medium")
+		{
+			//theTextureMgr->deleteTexture("paddle_m");
+			thePaddle.setTexture(theTextureMgr->getTexture("paddle_l"));
+			thePaddle.setSpriteDimensions(theTextureMgr->getTexture("paddle_l")->getTWidth(), theTextureMgr->getTexture("paddle_l")->getTHeight());
+			currentPaddleSize = "large";
+		}
+
+		if (currentPaddleSize == "large")
+			currentPaddleSize = "large";
+	}
+
+	if (effectToApply == "bonus_score")
+	{
+		if (scoreBoost == 0)
+			scoreBoost = 1;
+		else 
+			scoreBoost *= 2;
+	}
+
+	if (effectToApply == "bonus_smaller")
+	{
+		if (currentPaddleSize == "large")
+		{
+			//theTextureMgr->deleteTexture("paddle_l");
+			thePaddle.setTexture(theTextureMgr->getTexture("paddle_m"));
+			thePaddle.setSpriteDimensions(theTextureMgr->getTexture("paddle_m")->getTWidth(), theTextureMgr->getTexture("paddle_m")->getTHeight());
+			currentPaddleSize = "medium";
+		}
+
+		if (currentPaddleSize == "medium")
+		{
+			//theTextureMgr->deleteTexture("paddle_m");
+			thePaddle.setTexture(theTextureMgr->getTexture("paddle_s"));
+			thePaddle.setSpriteDimensions(theTextureMgr->getTexture("paddle_s")->getTWidth(), theTextureMgr->getTexture("paddle_s")->getTHeight());
+			currentPaddleSize = "small";
+		}
+
+		if (currentPaddleSize == "small")
+			currentPaddleSize = "small";
+	}
+
+	if (effectToApply == "bonus_speed")
+	{
+		// applying effect on every bullet
+		for (int i = 0; i < theBullets.size(); i++)
+		{
+			theBullets[i]->setBulletVelocity(theBullets[i]->getBulletVelocity() * 2);
+		}
+	}
+
+	if (effectToApply == "bonus_time")
+	{
+		if (timePassed < 30)
+			timePassed = 0;
+		else
+			timePassed -= 30;
+	}
+}
+
 
 // FIRST LEVEL DESIGN //
 // The layout of the bricks will be 16 columns (X), 8 rows (Y).
@@ -96,7 +166,6 @@ void cGame::createLevel1()
 			brickCount++;
 		}
 	}
-
 	currentLevel = 1;
 }
 
@@ -168,9 +237,8 @@ void cGame::createLevel2()
 			brickCount++;
 		}
 	}
-	
+
 	currentLevel = 2;
-	brickCount = 1;
 }
 
 void cGame::initialise(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
@@ -183,12 +251,6 @@ void cGame::initialise(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 	// Clear the buffer with a black background
 	SDL_SetRenderDrawColor(theRenderer, 0, 0, 0, 255);
 	SDL_RenderPresent(theRenderer);
-	
-	/* Let the computer pick a random number */
-	/*random_device rd;    // non-deterministic engine 
-	mt19937 gen{ rd() }; // deterministic engine. For most common uses, std::mersenne_twister_engine, fast and high-quality.
-	uniform_int_distribution<> AsteroidDis{ 1, 10 };
-	uniform_int_distribution<> AsteroidTextDis{ 4, 14 };*/
 
 	theTextureMgr->setRenderer(theRenderer);
 	theFontMgr->initFontLib();
@@ -199,11 +261,11 @@ void cGame::initialise(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 	textureName = { "background", "paddle_s", "paddle_m", "paddle_l", // background and paddles - 4
 					"brick_black", "brick_white", "brick_green", "brick_green_dmg1", "brick_orange", "brick_orange_dmg1", "brick_orange_dmg2", "brick_red", "brick_red_dmg1", "brick_red_dmg2", "brick_red_dmg3", // bricks - 11
 					"pick_up_effect", "ball", "bonus_balls", "bonus_bigger", "bonus_score", "bonus_smaller", "bonus_speed", "bonus_time", // pick ups - 8
-					"life", "score", "time", "wall_left", "wall_right", "wall_up", "leaderboard_background", "menu_background", "hit_effect" }; // additional - 9
+					"life", "wall_left", "wall_right", "wall_up", "leaderboard_background", "menu_background", "hit_effect" }; // additional - 7
 	texturesToUse = { "Images\\Bkg\\Background1280x1280.jpg", "Images\\Sprites\\paddle_s.png", "Images\\Sprites\\paddle_m.png", "Images\\Sprites\\paddle_l.png", // background and paddles - 4
 					  "Images\\Sprites\\brick_black.png", "Images\\Sprites\\brick_white.png", "Images\\Sprites\\brick_green.png", "Images\\Sprites\\brick_green_dmg1.png", "Images\\Sprites\\brick_orange.png", "Images\\Sprites\\brick_orange_dmg1.png", "Images\\Sprites\\brick_orange_dmg2.png", "Images\\Sprites\\brick_red.png", "Images\\Sprites\\brick_red_dmg1.png", "Images\\Sprites\\brick_red_dmg2.png", "Images\\Sprites\\brick_red_dmg3.png", // bricks - 11
 					  "Images\\Sprites\\pick_up_effect.png", "Images\\Sprites\\ball.png", "Images\\Sprites\\bonus_balls.png", "Images\\Sprites\\bonus_bigger.png", "Images\\Sprites\\bonus_score.png", "Images\\Sprites\\bonus_smaller.png", "Images\\Sprites\\bonus_speed.png", "Images\\Sprites\\bonus_time.png", // pick ups - 8
-					  "Images\\Sprites\\life.png", "Images\\Sprites\\score.png", "Images\\Sprites\\time.png", "Images\\Sprites\\wall_left.png", "Images\\Sprites\\wall_right.png", "Images\\Sprites\\wall_up.png", "Images\\Bkg\\Leaderboard.jpg", "Images\\Bkg\\Menu_background.jpg", "Images\\Sprites\\hit_effect.png" }; // additional - 9
+					  "Images\\Sprites\\life.png", "Images\\Sprites\\wall_left.png", "Images\\Sprites\\wall_right.png", "Images\\Sprites\\wall_up.png", "Images\\Bkg\\Leaderboard.jpg", "Images\\Bkg\\Menu_background.jpg", "Images\\Sprites\\hit_effect.png" }; // additional - 9
 
 	for (int tCount = 0; tCount < (int)textureName.size(); tCount++)
 	{	
@@ -214,10 +276,12 @@ void cGame::initialise(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 	btnNameList = { "exit_btn","menu_btn", "play_btn" };
 	btnTexturesToUse = { "Images/Buttons/button_exit.png", "Images/Buttons/button_menu.png", "Images/Buttons/button_play.png" };
 	btnPos = { { 660, 600 },{ 400, 600 },{ 460, 600 } };
+	
 	for (unsigned int bCount = 0; bCount < btnNameList.size(); bCount++)
 	{
 		theTextureMgr->addTexture(btnNameList[bCount], btnTexturesToUse[bCount]);
 	}
+	
 	for (unsigned int bCount = 0; bCount < btnNameList.size(); bCount++)
 	{
 		cButton * newBtn = new cButton();
@@ -226,6 +290,7 @@ void cGame::initialise(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 		newBtn->setSpriteDimensions(theTextureMgr->getTexture(btnNameList[bCount])->getTWidth(), theTextureMgr->getTexture(btnNameList[bCount])->getTHeight());
 		theButtonMgr->add(btnNameList[bCount], newBtn);
 	}
+
 	theGameState = gameState::menu;
 	theBtnType = btnTypes::exit;
 
@@ -275,6 +340,8 @@ void cGame::initialise(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 	thePaddle.setRocketMaxSpeed(700);
 	thePaddle.setSpriteTranslation({ 50,50 });
 
+	currentPaddleSize = "small";
+
 	// adding up and side wall textures
 	wallTextureLeft.setTexture(theTextureMgr->getTexture("wall_left"));
 	wallTextureLeft.setSpriteDimensions(theTextureMgr->getTexture("wall_left")->getTWidth(), theTextureMgr->getTexture("wall_left")->getTHeight());
@@ -294,8 +361,6 @@ void cGame::initialise(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 
 	// passing wall's width to cRocket
 	thePaddle.setMovingWidth(wallTextureLeft.getSpriteDimensions().w);
-
-	brickCount = 1;
 }
 
 void cGame::run(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
@@ -391,6 +456,12 @@ void cGame::render(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 			theAsteroids[draw]->render(theRenderer, &theAsteroids[draw]->getSpriteDimensions(), &theAsteroids[draw]->getSpritePos(), theAsteroids[draw]->getSpriteRotAngle(), &theAsteroids[draw]->getSpriteCentre(), theAsteroids[draw]->getSpriteScale());
 		}
 
+		// Rendering pick ups
+		for (int draw = 0; draw < (int)thePickUps.size(); draw++)
+		{
+			thePickUps[draw]->render(theRenderer, &thePickUps[draw]->getSpriteDimensions(), &thePickUps[draw]->getSpritePos(), thePickUps[draw]->getSpriteRotAngle(), &thePickUps[draw]->getSpriteCentre(), thePickUps[draw]->getSpriteScale());
+		}
+
 		// Render each bullet in the vector array
 		for (int draw = 0; draw < (int)theBullets.size(); draw++)
 		{
@@ -468,7 +539,7 @@ void cGame::render(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 		theTextureMgr->deleteTexture("HighScore");
 
 		// displaying the highscore
-		string highScoreText = "Highscore: " + to_string(theHSTable.loadFromFile("Data\\HighScore.dat"));
+		string highScoreText = "Highscore: " + to_string(theHSTable.loadFromFile("Data\\HighestScore.dat"));
 		theTextureMgr->addTexture("HighScore", theFontMgr->getFont("Secondary")->createTextTexture(theRenderer, highScoreText.c_str(), textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
 
 		// Rendered buttons
@@ -509,7 +580,7 @@ void cGame::update(double deltaTime)
 	
 	if (theGameState == gameState::playing)
 	{
-		// to restore default values if player will play again 
+		// restores default values if player will play again 
 		if (gameEnded == true)
 		{
 			theScore = 0;
@@ -517,19 +588,35 @@ void cGame::update(double deltaTime)
 			lifesLeft = 3;
 			brickCount = 0;
 			theScore = 0;
-			gameEnded = false;
+
+			theTextureMgr->deleteTexture("theScore");
+			strScore = "Score: 0";
+			theTextureMgr->addTexture("theScore", theFontMgr->getFont("Main")->createTextTexture(theRend, strScore.c_str(), textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
+
+			enabledSpace = true;
+			scoreBoost = 0;
+			bulletsFallen = 0;
+			numberOfPickUps = 0;
 
 			theAsteroids.clear();
+			thePickUps.clear();
 
 			createLevel1();
+			gameEnded = false;
 		}
 
 		// create second level
 		if (brickCount == 0 && currentLevel == 1)
 		{
-			// clearing the vector holding bricks
+			scoreBoost = 0;
+			bulletsFallen = 0;
+			bulletAmount = 0;
+			numberOfPickUps = 0;
+
+			// clearing the vector holding bricks and pickups
 			theAsteroids.clear();
-			
+			thePickUps.clear();
+
 			// destroying all the balls
 			for (vector<cBullet*>::iterator bulletIterartor = theBullets.begin(); bulletIterartor != theBullets.end(); ++bulletIterartor)
 			{
@@ -588,6 +675,77 @@ void cGame::update(double deltaTime)
 			}
 		}
 
+		if (enabledSpace == false)
+			timeToPickUp += deltaTime;
+		else
+			timeToPickUp = 0;
+
+		// spawn a pick up
+		if (timeToPickUp > 20)
+		{
+			numberOfPickUps++;
+
+			thePickUps.push_back(new cPickUp);
+
+			random_device rd; // obtain a random number from hardware
+			mt19937 eng(rd()); // seed the generator
+			uniform_int_distribution<> distr(0, 5); // define the range
+
+			currentPickUp = distr(eng);
+
+			theSoundMgr->getSnd("pick_up_appeared")->play(0);
+
+			// ball
+			if (currentPickUp == 0)
+			{
+				thePickUps[numberOfPickUps - 1]->setTexture(theTextureMgr->getTexture("bonus_balls"));
+				thePickUps[numberOfPickUps - 1]->effect = "bonus_balls";
+			}
+			// bigger
+			if (currentPickUp == 1)
+			{
+				thePickUps[numberOfPickUps - 1]->setTexture(theTextureMgr->getTexture("bonus_bigger"));
+				thePickUps[numberOfPickUps - 1]->effect = "bonus_bigger";
+			}
+			// score
+			if (currentPickUp == 2)
+			{
+				thePickUps[numberOfPickUps - 1]->setTexture(theTextureMgr->getTexture("bonus_score"));
+				thePickUps[numberOfPickUps - 1]->effect = "bonus_score";
+			}
+			// smaller
+			if (currentPickUp == 3)
+			{
+				thePickUps[numberOfPickUps - 1]->setTexture(theTextureMgr->getTexture("bonus_smaller"));
+				thePickUps[numberOfPickUps - 1]->effect = "bonus_smaller";
+			}
+			// speed
+			if (currentPickUp == 4)
+			{
+				thePickUps[numberOfPickUps - 1]->setTexture(theTextureMgr->getTexture("bonus_speed"));
+				thePickUps[numberOfPickUps - 1]->effect = "bonus_speed";
+			}
+			// time
+			if (currentPickUp == 5)
+			{
+				thePickUps[numberOfPickUps - 1]->setTexture(theTextureMgr->getTexture("bonus_time"));
+				thePickUps[numberOfPickUps - 1]->effect = "bonus_time";
+			}
+
+			random_device rd2; // obtain a random number from hardware
+			mt19937 eng2(rd2()); // seed the generator
+			uniform_int_distribution<> distr2(wallTextureLeft.getSpriteDimensions().w, 1280 - wallTextureLeft.getSpriteDimensions().w - theTextureMgr->getTexture("bonus_balls")->getTWidth()); // define the range
+
+			int xPos = distr2(eng2);
+
+			// all pick ups have same dimensions
+			thePickUps[numberOfPickUps - 1]->setSpriteDimensions(theTextureMgr->getTexture("bonus_balls")->getTWidth(), theTextureMgr->getTexture("bonus_balls")->getTHeight());
+			thePickUps[numberOfPickUps - 1]->setSpritePos({ xPos, 550 });
+
+			// resetting the clock
+			timeToPickUp = 0;
+		}
+
 		/*
 		==============================================================
 		| Check for collisions
@@ -598,13 +756,13 @@ void cGame::update(double deltaTime)
 			(*bulletIterartor)->update(deltaTime);
 
 			// Playing sound when hitting the top wall
-			if ((*bulletIterartor)->getSpritePos().y < 0 + wallTextureTop.getSpriteDimensions().h)
+			if ((*bulletIterartor)->getSpritePos().y < 0 + wallTextureTop.getSpriteDimensions().h + 1)
 			{
 				theSoundMgr->getSnd("ball_hit")->play(0);
 			}
 
 			// Playing sound when hitting the left wall
-			if ((*bulletIterartor)->getSpritePos().x < 0 + wallTextureRight.getSpriteDimensions().w)
+			if ((*bulletIterartor)->getSpritePos().x < 0 + wallTextureRight.getSpriteDimensions().w + 1)
 			{
 				theSoundMgr->getSnd("ball_hit")->play(0);
 			}
@@ -614,6 +772,39 @@ void cGame::update(double deltaTime)
 			{
 				theSoundMgr->getSnd("ball_hit")->play(0);
 			}
+
+			// checking if hit a pick up
+			for (vector<cPickUp*>::iterator pickUpIterator = thePickUps.begin(); pickUpIterator != thePickUps.end();)
+			{
+				(*pickUpIterator)->update(deltaTime);
+				pickUpHit = false;
+
+  				if ((*pickUpIterator)->collidedWith(&(*pickUpIterator)->getBoundingRect(), &(*bulletIterartor)->getBoundingRect()))
+				{
+					theSoundMgr->getSnd("pick_up_sound")->play(0);
+				
+					checkWhichToDestroy++;
+					applyPickUpEffect((*pickUpIterator)->getEffect());
+					theExplosions.push_back(new cSprite);
+					int index = theExplosions.size() - 1;
+					theExplosions[index]->setSpriteTranslation({ 0, 0 });
+					theExplosions[index]->setActive(true);
+					theExplosions[index]->setNoFrames(6);
+					theExplosions[index]->setTexture(theTextureMgr->getTexture("pick_up_effect"));
+					theExplosions[index]->setSpriteDimensions(theTextureMgr->getTexture("pick_up_effect")->getTWidth() / theExplosions[index]->getNoFrames(), theTextureMgr->getTexture("pick_up_effect")->getTHeight());
+					theExplosions[index]->setSpritePos({ (*pickUpIterator)->getSpritePos().x + (int)((*pickUpIterator)->getSpritePos().w / 2), (*pickUpIterator)->getSpritePos().y + (int)((*pickUpIterator)->getSpritePos().h / 2) });
+					numberOfPickUps--;
+					pickUpHit = true;
+					thePickUps.erase(pickUpIterator);
+					break;
+				}else
+
+				if(pickUpHit == false)
+					++pickUpIterator;
+			}
+
+			if (pickUpHit)
+				pickUpHit = false;
 
 			for (vector<cAsteroid*>::iterator asteroidIterator = theAsteroids.begin(); asteroidIterator != theAsteroids.end(); ++asteroidIterator)
 			{
@@ -641,7 +832,7 @@ void cGame::update(double deltaTime)
 							(*asteroidIterator)->setTexture(theTextureMgr->getTexture("brick_red_dmg3"));
 						}
 						else if ((*asteroidIterator)->health == 0)
-							theScore += 100;
+							theScore += 100 + (100 * scoreBoost);
 					}
 
 					// if brick is orange
@@ -656,7 +847,7 @@ void cGame::update(double deltaTime)
 							(*asteroidIterator)->setTexture(theTextureMgr->getTexture("brick_orange_dmg2"));
 						}
 						else if ((*asteroidIterator)->health == 0)
-							theScore += 50;
+							theScore += 50 + (50 * scoreBoost);
 					}
 
 					// if brick is green
@@ -667,14 +858,14 @@ void cGame::update(double deltaTime)
 							(*asteroidIterator)->setTexture(theTextureMgr->getTexture("brick_green_dmg1"));
 						}
 						else if ((*asteroidIterator)->health == 0)
-							theScore += 25;
+							theScore += 25 + (25 * scoreBoost);
 					}
 
 					// if brick is white
 					if ((*asteroidIterator)->colour == "white")
 					{
 						if ((*asteroidIterator)->health == 0)
-							theScore += 10;
+							theScore += 10 + (10 * scoreBoost);
 					}
 
 					if ((*asteroidIterator)->health == 0)
@@ -684,20 +875,15 @@ void cGame::update(double deltaTime)
 						strScore = "Score: ";
 						strScore += to_string(theScore).c_str();
 						theTextureMgr->addTexture("theScore", theFontMgr->getFont("Main")->createTextTexture(theRend, strScore.c_str(), textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
-						theSoundMgr->getSnd("brick_destroy_sound")->play(0); \
+						theSoundMgr->getSnd("brick_destroy_sound")->play(0); 
 						brickCount--;
 					}
-
-					// console view of health
-					//cout << (*asteroidIterator)->health << endl;
 
 					theExplosions.push_back(new cSprite);
 					int index = theExplosions.size() - 1;
 					theExplosions[index]->setSpriteTranslation({ 0, 0 });
 					theExplosions[index]->setActive(true);
 					theExplosions[index]->setNoFrames(6);
-					//theExplosions[index]->setTexture(theTextureMgr->getTexture("pick_up_effect"));
-					//theExplosions[index]->setSpriteDimensions(theTextureMgr->getTexture("pick_up_effect")->getTWidth() / theExplosions[index]->getNoFrames(), theTextureMgr->getTexture("pick_up_effect")->getTHeight());
 					theExplosions[index]->setTexture(theTextureMgr->getTexture("hit_effect"));
 					theExplosions[index]->setSpriteDimensions(theTextureMgr->getTexture("hit_effect")->getTWidth() / theExplosions[index]->getNoFrames(), theTextureMgr->getTexture("hit_effect")->getTHeight());
 					theExplosions[index]->setSpritePos({ (*asteroidIterator)->getSpritePos().x + (int)((*asteroidIterator)->getSpritePos().w / 2), (*asteroidIterator)->getSpritePos().y + (int)((*asteroidIterator)->getSpritePos().h / 2) });
@@ -707,42 +893,55 @@ void cGame::update(double deltaTime)
 			// when bullet collides with the platform
 			if ((*bulletIterartor)->collidedWith(&(thePaddle).getBoundingRect(), &(*bulletIterartor)->getBoundingRect()))
 			{
-				/* THE CLOSER TO THE CENTRE THE MORE STRAIGHT BOUNCE
-				README.TXT:
-				cBullet:
-				- the closer to the centre of the platform the ball hits the angle of the bounce will be more 'straight'
-
-				float distFromCentre = 0;
-				distFromCentre = (*bulletIterartor)->getSpriteCentre().x - thePaddle.getSpriteCentre().x;
-				// we want the distance to be positive
-				if (distFromCentre < 0)
-					distFromCentre *= -1;
-
-				cout << distFromCentre << endl;
-				*/
-				
-				theSoundMgr->getSnd("ball_hit")->play(0);
 				(*bulletIterartor)->bulletDirectionY = 1;
-				
-				//(*bulletIterartor)->bulletDirectionX /= distFromCentre * 5;
+				theSoundMgr->getSnd("ball_hit")->play(0);
 			}
 
 			// when bullet falls under the platform
 			if ((*bulletIterartor)->getSpritePos().y > thePaddle.getSpritePos().y + 10)
 			{
-				cout << "LIFE LOST " << endl;
 				// deleting the bullet
 				(*bulletIterartor)->setActive(false);
-				enabledSpace = true;
+				bulletsFallen++;
 
-				// remove one life (removes the heart texture as well because they are rendered every frame)
-				lifesLeft--;
-				theSoundMgr->getSnd("life_lost")->play(0);
+				// only if all the bullets are under the platform
+				if (bulletsFallen == bulletAmount)
+				{
+					enabledSpace = true;
+					bulletsFallen = 0;
+					
+					// deactivate all bonus effects
+					if (currentPaddleSize == "medium")
+					{
+						//theTextureMgr->deleteTexture("paddle_m");
+					}
+
+					if (currentPaddleSize == "large")
+					{
+						//theTextureMgr->deleteTexture("paddle_l");
+					}
+					
+					thePaddle.setTexture(theTextureMgr->getTexture("paddle_s"));
+					thePaddle.setSpriteDimensions(theTextureMgr->getTexture("paddle_s")->getTWidth(), theTextureMgr->getTexture("paddle_s")->getTHeight());
+					currentPaddleSize = "small";
+					scoreBoost = 0;
+					theBullets[0]->setBulletVelocity(5);
+
+					// delete all the pickUps
+					for (int i = 0; i < thePickUps.size(); i++)
+					{
+						thePickUps[i]->setActive(false);
+						thePickUps.erase(thePickUps.begin() + i);
+					}
+
+					// remove one life (removes the heart texture as well because they are rendered every frame)
+					lifesLeft--;
+					theSoundMgr->getSnd("life_lost")->play(0);
+				}
 			}
 		}
 
 		timePassed += deltaTime;
-		//cout << (int)timePassed << endl;
 
 		// Update timer
 		theTextureMgr->deleteTexture("Time");
@@ -772,9 +971,7 @@ void cGame::update(double deltaTime)
 			
 			theScore += lifesLeft * 150 + timeBonusScore;
 
-			//cout << "TIME PASSED " << timePassed << " TIME BONUS " << timeBonusScore << " THE SCORE " << theScore << endl;
-
-			theHSTable.compareScoreAndSave(to_string(theScore), "Data\\HighScore.dat");
+			theHSTable.compareScoreAndSave(to_string(theScore), "Data\\HighestScore.dat");
 
 			gameEnded = true;
 			theGameState = gameState::end;
@@ -848,6 +1045,7 @@ bool cGame::getInput(bool theLoop)
 						theBullets[numBullets]->setActive(true);
 						cout << "Bullet added to Vector at position - x: " << thePaddle.getBoundingRect().x << " y: " << thePaddle.getBoundingRect().y << endl;
 						theSoundMgr->getSnd("ball_hit")->play(0);
+						bulletAmount++;
 					}
 				}
 				break;
