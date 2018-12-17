@@ -36,6 +36,7 @@ cGame* cGame::getInstance()
 	return cGame::pInstance;
 }
 
+// checking which bonus to apply
 void cGame::applyPickUpEffect(string effectToApply)
 {
 	if (effectToApply == "bonus_balls")
@@ -47,7 +48,6 @@ void cGame::applyPickUpEffect(string effectToApply)
 	{
 		if (currentPaddleSize == "small")
 		{
-			//theTextureMgr->deleteTexture("paddle_s");
 			thePaddle.setTexture(theTextureMgr->getTexture("paddle_m"));
 			thePaddle.setSpriteDimensions(theTextureMgr->getTexture("paddle_m")->getTWidth(), theTextureMgr->getTexture("paddle_m")->getTHeight());
 			currentPaddleSize = "medium";
@@ -55,7 +55,6 @@ void cGame::applyPickUpEffect(string effectToApply)
 
 		if (currentPaddleSize == "medium")
 		{
-			//theTextureMgr->deleteTexture("paddle_m");
 			thePaddle.setTexture(theTextureMgr->getTexture("paddle_l"));
 			thePaddle.setSpriteDimensions(theTextureMgr->getTexture("paddle_l")->getTWidth(), theTextureMgr->getTexture("paddle_l")->getTHeight());
 			currentPaddleSize = "large";
@@ -77,7 +76,6 @@ void cGame::applyPickUpEffect(string effectToApply)
 	{
 		if (currentPaddleSize == "large")
 		{
-			//theTextureMgr->deleteTexture("paddle_l");
 			thePaddle.setTexture(theTextureMgr->getTexture("paddle_m"));
 			thePaddle.setSpriteDimensions(theTextureMgr->getTexture("paddle_m")->getTWidth(), theTextureMgr->getTexture("paddle_m")->getTHeight());
 			currentPaddleSize = "medium";
@@ -85,7 +83,6 @@ void cGame::applyPickUpEffect(string effectToApply)
 
 		if (currentPaddleSize == "medium")
 		{
-			//theTextureMgr->deleteTexture("paddle_m");
 			thePaddle.setTexture(theTextureMgr->getTexture("paddle_s"));
 			thePaddle.setSpriteDimensions(theTextureMgr->getTexture("paddle_s")->getTWidth(), theTextureMgr->getTexture("paddle_s")->getTHeight());
 			currentPaddleSize = "small";
@@ -443,7 +440,7 @@ void cGame::render(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 			wallTextureTop.render(theRenderer, &wallTextureTop.getSpriteDimensions(), &wallTextureTop.getSpritePos(), wallTextureTop.getSpriteRotAngle(), &wallTextureTop.getSpriteCentre(), wallTextureTop.getSpriteScale());
 		}
 
-		// Rendering the hearts that represent player's lifes
+		// Rendering the hearts that represent player's lives
 		for (int i = 0; i < lifesLeft; i++)
 		{
 			lifeTexture.setSpritePos({ i * lifeTexture.getSpriteDimensions().w, 0 });
@@ -501,6 +498,7 @@ void cGame::render(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 				theTextureMgr->deleteTexture("PressSpace");
 				theTextureMgr->addTexture("PressSpace", theFontMgr->getFont("Secondary")->createTextTexture(theRenderer, pressButton.c_str(), textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
 			}
+			
 		}
 		// Render the paddle
 		thePaddle.render(theRenderer, &thePaddle.getSpriteDimensions(), &thePaddle.getSpritePos(), thePaddle.getSpriteRotAngle(), &thePaddle.getSpriteCentre(), thePaddle.getSpriteScale());
@@ -783,7 +781,6 @@ void cGame::update(double deltaTime)
 				{
 					theSoundMgr->getSnd("pick_up_sound")->play(0);
 				
-					checkWhichToDestroy++;
 					applyPickUpEffect((*pickUpIterator)->getEffect());
 					theExplosions.push_back(new cSprite);
 					int index = theExplosions.size() - 1;
@@ -802,9 +799,6 @@ void cGame::update(double deltaTime)
 				if(pickUpHit == false)
 					++pickUpIterator;
 			}
-
-			if (pickUpHit)
-				pickUpHit = false;
 
 			for (vector<cAsteroid*>::iterator asteroidIterator = theAsteroids.begin(); asteroidIterator != theAsteroids.end(); ++asteroidIterator)
 			{
@@ -909,30 +903,15 @@ void cGame::update(double deltaTime)
 				{
 					enabledSpace = true;
 					bulletsFallen = 0;
-					
-					// deactivate all bonus effects
-					if (currentPaddleSize == "medium")
-					{
-						//theTextureMgr->deleteTexture("paddle_m");
-					}
-
-					if (currentPaddleSize == "large")
-					{
-						//theTextureMgr->deleteTexture("paddle_l");
-					}
+					bulletAmount = 0;
 					
 					thePaddle.setTexture(theTextureMgr->getTexture("paddle_s"));
 					thePaddle.setSpriteDimensions(theTextureMgr->getTexture("paddle_s")->getTWidth(), theTextureMgr->getTexture("paddle_s")->getTHeight());
 					currentPaddleSize = "small";
 					scoreBoost = 0;
-					theBullets[0]->setBulletVelocity(5);
 
 					// delete all the pickUps
-					for (int i = 0; i < thePickUps.size(); i++)
-					{
-						thePickUps[i]->setActive(false);
-						thePickUps.erase(thePickUps.begin() + i);
-					}
+					thePickUps.clear();
 
 					// remove one life (removes the heart texture as well because they are rendered every frame)
 					lifesLeft--;
@@ -965,9 +944,12 @@ void cGame::update(double deltaTime)
 			int timeBonusScore = 0;
 
 			// 10 points for each second but no points taken if exeeded time limit
-			if ((60 - timePassed) < 0)
+			if ((360 - timePassed) < 0)
 				timeBonusScore = 0;
 			else timeBonusScore = (360 - int(timePassed)) * 10;
+			
+			if(lifesLeft == 0)
+				timeBonusScore = 0;
 			
 			theScore += lifesLeft * 150 + timeBonusScore;
 

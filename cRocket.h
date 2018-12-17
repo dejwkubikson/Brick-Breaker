@@ -32,9 +32,5 @@ public:
 	bool stopRocket = false; // true when the movement keys are released - stops the platform
 	void setMovingWidth(int wallSizeW); // sets the moving width - platform cannot move onto the walls on sides
 	cController theController;
-	int paddleSize = 0;
-	void setPaddleSize(int toSet);
-	int getPaddleSize();
-
 }; 
 #endif

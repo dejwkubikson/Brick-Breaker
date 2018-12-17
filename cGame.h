@@ -36,7 +36,23 @@ public:
 	static cGame* getInstance();
 
 	double timePassed = 0;
-	string currentBonus = "";
+	int currentLevel = 1;
+	int lifesLeft = 3;
+	string stringTime = "";
+	bool enabledSpace = true;
+	int brickCount = 0;
+	bool gameEnded = false;
+	int currentPickUp = -1;
+	double timeToPickUp = 0;
+	int numberOfPickUps = 0;
+	bool pickUpHit = false;
+	string currentPaddleSize = "";
+	int scoreBoost = 0;
+	int bulletsFallen = 0;
+	int bulletAmount = 0;
+	int wallNumberTop;
+	int wallNumberSide;
+
 
 private:
 
@@ -65,7 +81,6 @@ private:
 	vector<cAsteroid*> theAsteroids;
 	vector<cBullet*> theBullets;
 	vector<cSprite*> theExplosions;
-	vector<cSprite*> vecLifesLeft;
 	vector<cPickUp*> thePickUps;
 
 	// Fonts to use
@@ -84,12 +99,9 @@ private:
 	vector <cButton> theButtons;
 	btnTypes theBtnType;
 	// Game objects
-	// Define the elements and there position in/on the array/map
 	int renderWidth, renderHeight;
 	int theScore;
 	string strScore;
-	int wallNumberTop;
-	int wallNumberSide;
 	gameState theGameState;
 	SDL_Point theAreaClicked;
 	cHighScoreTable theHSTable;
@@ -97,21 +109,6 @@ private:
 	string theHeighScoreTable;
 	int theHSTableSize;
 	vector<LPCSTR> highScoreTextures;
-	int currentLevel = 1;
-	int lifesLeft = 3;
-	string stringTime = "";
-	bool enabledSpace = true;
-	int brickCount = 0;
-	bool gameEnded = false;
-	int currentPickUp = -1;
-	double timeToPickUp = 0;
-	int numberOfPickUps = 0;
-	int checkWhichToDestroy = 0;
-	bool pickUpHit = false;
-	string currentPaddleSize = "";
-	int scoreBoost = 0;
-	int bulletsFallen = 0;
-	int bulletAmount = 0;
 };
 
 #endif

@@ -17,7 +17,7 @@ cAsteroid::cAsteroid() : cSprite()
 }
 /*
 =================================================================
-Update the sprite position
+Update the bounding rectangle
 =================================================================
 */
 

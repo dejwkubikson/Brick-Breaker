@@ -97,3 +97,6 @@ Added cPickUp cpp and header files
 
 cGameStuVer
 - added pick ups (collision, spawn, sounds)
+
+17/12
+Cleaned the code from unnecesary and unused  variables and methods
