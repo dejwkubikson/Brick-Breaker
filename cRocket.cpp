@@ -136,4 +136,22 @@ void cRocket::setMovingWidth(int wallSizeW)
 {
 	wallWidth = wallSizeW;
 }
+/*
+================================================================ =
+Sets the paddle size
+================================================================ =
+*/
+void cRocket::setPaddleSize(int toSet)
+{
+	paddleSize = toSet;
+}
+/*
+================================================================ =
+Gets the paddle size
+================================================================ =
+*/
+int cRocket::getPaddleSize()
+{
+	return paddleSize;
+}
 

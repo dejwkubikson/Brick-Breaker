@@ -46,7 +46,7 @@ void cBullet::update(double deltaTime)
 		bulletDirectionX *= -1;
 	}
 
-	// GOING RIGHT substracting the ball's width due to the fact that the x is not defined by the most right pixel of the ball.
+	// GOING RIGHT dividing the ball's height gave the best and most accurate bounce effect (it bounced right of the wall when it touched it and not from the centre or any other point)
 	if (currentSpritePos.x > 1280 - wallWidth - (this->getSpriteDimensions().w))
 	{
 		bulletDirectionX *= -1;

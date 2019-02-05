@@ -36,7 +36,6 @@ cGame* cGame::getInstance()
 	return cGame::pInstance;
 }
 
-// checking which bonus to apply
 void cGame::applyPickUpEffect(string effectToApply)
 {
 	if (effectToApply == "bonus_balls")
@@ -48,6 +47,7 @@ void cGame::applyPickUpEffect(string effectToApply)
 	{
 		if (currentPaddleSize == "small")
 		{
+			//theTextureMgr->deleteTexture("paddle_s");
 			thePaddle.setTexture(theTextureMgr->getTexture("paddle_m"));
 			thePaddle.setSpriteDimensions(theTextureMgr->getTexture("paddle_m")->getTWidth(), theTextureMgr->getTexture("paddle_m")->getTHeight());
 			currentPaddleSize = "medium";
@@ -55,6 +55,7 @@ void cGame::applyPickUpEffect(string effectToApply)
 
 		if (currentPaddleSize == "medium")
 		{
+			//theTextureMgr->deleteTexture("paddle_m");
 			thePaddle.setTexture(theTextureMgr->getTexture("paddle_l"));
 			thePaddle.setSpriteDimensions(theTextureMgr->getTexture("paddle_l")->getTWidth(), theTextureMgr->getTexture("paddle_l")->getTHeight());
 			currentPaddleSize = "large";
@@ -76,6 +77,7 @@ void cGame::applyPickUpEffect(string effectToApply)
 	{
 		if (currentPaddleSize == "large")
 		{
+			//theTextureMgr->deleteTexture("paddle_l");
 			thePaddle.setTexture(theTextureMgr->getTexture("paddle_m"));
 			thePaddle.setSpriteDimensions(theTextureMgr->getTexture("paddle_m")->getTWidth(), theTextureMgr->getTexture("paddle_m")->getTHeight());
 			currentPaddleSize = "medium";
@@ -83,6 +85,7 @@ void cGame::applyPickUpEffect(string effectToApply)
 
 		if (currentPaddleSize == "medium")
 		{
+			//theTextureMgr->deleteTexture("paddle_m");
 			thePaddle.setTexture(theTextureMgr->getTexture("paddle_s"));
 			thePaddle.setSpriteDimensions(theTextureMgr->getTexture("paddle_s")->getTWidth(), theTextureMgr->getTexture("paddle_s")->getTHeight());
 			currentPaddleSize = "small";
@@ -406,9 +409,9 @@ void cGame::render(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 		tempTextTexture->renderTexture(theRenderer, tempTextTexture->getTexture(), &tempTextTexture->getTextureRect(), &pos, scale);
 
 		// Rendered buttons
-		theButtonMgr->getBtn("play_btn")->setSpritePos({ 460, 600 });
+		theButtonMgr->getBtn("play_btn")->setSpritePos({ 460, 480 });
 		theButtonMgr->getBtn("play_btn")->render(theRenderer, &theButtonMgr->getBtn("play_btn")->getSpriteDimensions(), &theButtonMgr->getBtn("play_btn")->getSpritePos(), theButtonMgr->getBtn("play_btn")->getSpriteScale());
-		theButtonMgr->getBtn("exit_btn")->setSpritePos({ 640, 600 });
+		theButtonMgr->getBtn("exit_btn")->setSpritePos({ 640, 480 });
 		theButtonMgr->getBtn("exit_btn")->render(theRenderer, &theButtonMgr->getBtn("exit_btn")->getSpriteDimensions(), &theButtonMgr->getBtn("exit_btn")->getSpritePos(), theButtonMgr->getBtn("exit_btn")->getSpriteScale());
 		
 	}break;
@@ -440,7 +443,7 @@ void cGame::render(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 			wallTextureTop.render(theRenderer, &wallTextureTop.getSpriteDimensions(), &wallTextureTop.getSpritePos(), wallTextureTop.getSpriteRotAngle(), &wallTextureTop.getSpriteCentre(), wallTextureTop.getSpriteScale());
 		}
 
-		// Rendering the hearts that represent player's lives
+		// Rendering the hearts that represent player's lifes
 		for (int i = 0; i < lifesLeft; i++)
 		{
 			lifeTexture.setSpritePos({ i * lifeTexture.getSpriteDimensions().w, 0 });
@@ -498,7 +501,6 @@ void cGame::render(SDL_Window* theSDLWND, SDL_Renderer* theRenderer)
 				theTextureMgr->deleteTexture("PressSpace");
 				theTextureMgr->addTexture("PressSpace", theFontMgr->getFont("Secondary")->createTextTexture(theRenderer, pressButton.c_str(), textType::solid, { 255, 255, 255, 255 }, { 0, 0, 0, 0 }));
 			}
-			
 		}
 		// Render the paddle
 		thePaddle.render(theRenderer, &thePaddle.getSpriteDimensions(), &thePaddle.getSpritePos(), thePaddle.getSpriteRotAngle(), &thePaddle.getSpriteCentre(), thePaddle.getSpriteScale());
@@ -781,6 +783,7 @@ void cGame::update(double deltaTime)
 				{
 					theSoundMgr->getSnd("pick_up_sound")->play(0);
 				
+					checkWhichToDestroy++;
 					applyPickUpEffect((*pickUpIterator)->getEffect());
 					theExplosions.push_back(new cSprite);
 					int index = theExplosions.size() - 1;
@@ -800,12 +803,49 @@ void cGame::update(double deltaTime)
 					++pickUpIterator;
 			}
 
+			if (pickUpHit)
+				pickUpHit = false;
+
 			for (vector<cAsteroid*>::iterator asteroidIterator = theAsteroids.begin(); asteroidIterator != theAsteroids.end(); ++asteroidIterator)
 			{
 				if ((*asteroidIterator)->collidedWith(&(*asteroidIterator)->getBoundingRect(), &(*bulletIterartor)->getBoundingRect()))
 				{
 					(*asteroidIterator)->health--;
-					(*bulletIterartor)->bulletDirectionY *= -1;
+
+					cout << "BALLS X POS " << (*bulletIterartor)->getSpriteCentre().x + (*bulletIterartor)->getSpritePos().x << endl;
+					cout << "BRICK X POS " << (*asteroidIterator)->getSpritePos().x << endl;
+					cout << "BRICK X + WIDTH " << (*asteroidIterator)->getSpritePos().x + (*asteroidIterator)->getSpriteDimensions().w <<endl;
+
+					// ball's centre Y pos is higher than brick's Y pos + height - hit the bottom of the brick
+					if ((*bulletIterartor)->getSpriteCentre().y + (*bulletIterartor)->getSpritePos().y > (*asteroidIterator)->getSpritePos().y + (*asteroidIterator)->getSpriteDimensions().h)
+					{
+						cout << "HIT BOTTOM !!!" << endl;
+						(*bulletIterartor)->bulletDirectionY = -1;
+					}
+					// ball's Y pos + texture height is lower than brick's Y pos - hit the top of the brick
+					else if ((*bulletIterartor)->getSpritePos().y + (*bulletIterartor)->getSpriteDimensions().h < (*asteroidIterator)->getSpritePos().y)
+					{
+						cout << "HIT TOP !!!" << endl;
+						(*bulletIterartor)->bulletDirectionY = 1;
+					}
+					// ball's X pos + texture width is lower than brick's X pos - hit the left side of the brick
+					else if ((*bulletIterartor)->getSpritePos().x + (*bulletIterartor)->getSpriteDimensions().w  < (*asteroidIterator)->getSpritePos().x)
+					{	
+						cout << " HIT LEFT !!!" << endl;
+						(*bulletIterartor)->bulletDirectionX *= -1;
+					}
+					// ball's centre X pos is higher than brick's X pos - hit the right side of the brick
+					else if ((*bulletIterartor)->getSpriteCentre().x + (*bulletIterartor)->getSpritePos().x > (*asteroidIterator)->getSpritePos().x + (*asteroidIterator)->getSpriteDimensions().w)
+					{
+						cout << " HIT RIGHT !!!" << endl;
+						(*bulletIterartor)->bulletDirectionX *= -1;
+					}
+					// if none of the above was true it means that the ball hit the corner of the brick
+					else
+					{
+						cout << " HIT THE CORNER !!!" << endl;
+						(*bulletIterartor)->bulletDirectionX *= -1;
+					}
 
 					// plays sound when ball hits a brick
 					theSoundMgr->getSnd("ball_hit")->play(0);
@@ -889,10 +929,52 @@ void cGame::update(double deltaTime)
 			{
 				(*bulletIterartor)->bulletDirectionY = 1;
 				theSoundMgr->getSnd("ball_hit")->play(0);
+
+				// adding a different angle to the ball depending of how the far from the centre of the paddle the ball hit
+				int bulletCentreX = (*bulletIterartor)->getSpriteCentre().x + (*bulletIterartor)->getSpritePos().x;
+				int paddleCentreX = thePaddle.getSpriteCentre().x + thePaddle.getSpritePos().x;
+
+				int difference = bulletCentreX - paddleCentreX;
+
+				/*cout << "BULLET X " << bulletCentreX << endl;
+				cout << "PADDLE X " << paddleCentreX << endl;
+				cout << "DIFFERENCE " << difference << endl;*/
+
+				// ball hit paddle's left side from centre
+				if (difference < 0)
+					difference *= -1;
+
+				// maximum angle is 80, depending on the paddle size, each pixel will mean a different angle
+				double anglePerPixel = (thePaddle.getSpriteDimensions().w / 2) / 70;
+
+				int ballAngle = int (difference / anglePerPixel);
+
+				//cout << "ANGLE " << ballAngle << endl;
+
+				// shouldn't exeed 70 because the ball would travel nearly in a straight, horizontal line
+				if (ballAngle > 70)
+					ballAngle = 70;
+
+				// shouldn't be lower than 15 because the ball would travel nearly in a straight, vertical line
+				if (ballAngle < 15)
+					ballAngle = 15;
+
+				// the first bounce with current angle 0, checking if it hit the left side of the paddle to bounce it from the paddle to the left side
+				if ((*bulletIterartor)->getSpriteRotAngle() == 0)
+				{
+					if (bulletCentreX - paddleCentreX < 0)
+					{
+						(*bulletIterartor)->setSpriteRotAngle(-ballAngle);
+					}
+					else
+						(*bulletIterartor)->setSpriteRotAngle(ballAngle);
+				}
+				else
+					(*bulletIterartor)->setSpriteRotAngle(ballAngle);
 			}
 
 			// when bullet falls under the platform
-			if ((*bulletIterartor)->getSpritePos().y > thePaddle.getSpritePos().y + 10)
+			if ((*bulletIterartor)->getSpritePos().y > thePaddle.getSpritePos().y + 30)
 			{
 				// deleting the bullet
 				(*bulletIterartor)->setActive(false);
@@ -905,12 +987,17 @@ void cGame::update(double deltaTime)
 					bulletsFallen = 0;
 					bulletAmount = 0;
 					
+					// deactivate all bonus effects
 					thePaddle.setTexture(theTextureMgr->getTexture("paddle_s"));
 					thePaddle.setSpriteDimensions(theTextureMgr->getTexture("paddle_s")->getTWidth(), theTextureMgr->getTexture("paddle_s")->getTHeight());
 					currentPaddleSize = "small";
 					scoreBoost = 0;
+					theBullets[0]->setBulletVelocity(5);
 
-					// delete all the pickUps
+					// delete all the pick ups
+					numberOfPickUps = 0;
+					for (int i = 0; i < thePickUps.size(); i++)
+						thePickUps[i]->setActive(false);
 					thePickUps.clear();
 
 					// remove one life (removes the heart texture as well because they are rendered every frame)
@@ -944,12 +1031,9 @@ void cGame::update(double deltaTime)
 			int timeBonusScore = 0;
 
 			// 10 points for each second but no points taken if exeeded time limit
-			if ((360 - timePassed) < 0)
+			if ((60 - timePassed) < 0)
 				timeBonusScore = 0;
 			else timeBonusScore = (360 - int(timePassed)) * 10;
-			
-			if(lifesLeft == 0)
-				timeBonusScore = 0;
 			
 			theScore += lifesLeft * 150 + timeBonusScore;
 
@@ -959,7 +1043,7 @@ void cGame::update(double deltaTime)
 			theGameState = gameState::end;
 		}
 
-		// simulating spacebar press
+		// simulating spacebar press when using a controller
 		if (theController.checkConnection() == true && theController.checkIfShooting() == true)
 		{
 			SDL_Event event;
@@ -1023,7 +1107,7 @@ bool cGame::getInput(bool theLoop)
 						theBullets[numBullets]->setBulletVelocity(5);
 						// passing walls' dimensions to cBulletStuVer
 						theBullets[numBullets]->setMovingPoints(wallTextureLeft.getSpriteDimensions().w, wallTextureTop.getSpriteDimensions().h);
-						theBullets[numBullets]->setSpriteRotAngle(-50);
+						theBullets[numBullets]->setSpriteRotAngle(0);
 						theBullets[numBullets]->setActive(true);
 						cout << "Bullet added to Vector at position - x: " << thePaddle.getBoundingRect().x << " y: " << thePaddle.getBoundingRect().y << endl;
 						theSoundMgr->getSnd("ball_hit")->play(0);

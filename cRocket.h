@@ -14,11 +14,12 @@ class cRocket : public cSprite
 {
 private:
 	int rocketVelocity;
-	int move;
 	int rocketMaxSpeed = 700;
 	int rocketAcceleration = 5;
 	int rocketDecceleration = 20;
 	int wallWidth = 0;
+	int move = 0;
+	bool stopRocket = false; // true when the movement keys are released - stops the platform
 
 public:
 	cRocket();
@@ -29,8 +30,10 @@ public:
 	int getRocketMove();				 // Gets the rocket move value
 	void setRocketMaxSpeed(int rocketMax); // Sets the rocket's max speed
 	int getRocketMaxSpeed(); // Gets the rocket's max speed
-	bool stopRocket = false; // true when the movement keys are released - stops the platform
 	void setMovingWidth(int wallSizeW); // sets the moving width - platform cannot move onto the walls on sides
 	cController theController;
+	int paddleSize = 0;
+	void setPaddleSize(int toSet);
+	int getPaddleSize();
 }; 
 #endif
